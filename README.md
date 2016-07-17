@@ -1,2 +1,2 @@
 # ZZMediaPlayer
-A open source Media player
+>A open source Media player

@@ -13,8 +13,15 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    zplayer.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    zplayer.h
 
 FORMS    += mainwindow.ui
+
+LIBS += -L../lib -lavcodec -lavformat -lavfilter -lavutil -lswresample -lswscale -lpostproc
+
+INCLUDEPATH += ../include
+DEPENDPATH += ../include

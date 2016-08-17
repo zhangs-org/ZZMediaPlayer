@@ -4,6 +4,21 @@ ZPlayer::ZPlayer(QObject *parent) :
     QObject(parent)
 {
     qDebug()<<"ZPlayer::ZPlayer()";
+
+    captureThread = new ZCapture;
+
+    captureThread->setUrl("D:/video/trans.mp4");
+
+    connect(captureThread,SIGNAL(sendPacket()),this,SLOT(getPacket()));
+
+    captureThread->start();
+}
+
+void ZPlayer::getPacket(void *pkt)
+{
+    AVPacket *packet = (AVPacket *)pkt;
+    qDebug()<<"getPacket, index="<<packet->stream_index;
+
 }
 
 int ZPlayer::setUrl(char * url)

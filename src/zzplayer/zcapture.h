@@ -17,14 +17,14 @@ extern "C"{
 #include <QDebug>
 #include <QList>
 
-class ZCapture : public QObject
+class ZCapture : public QThread
 {
     Q_OBJECT
 public:
     explicit ZCapture(QObject *parent = 0);
 
 
-    char streamUrl[1024];  // the stream url
+
 
     /* funtions */
     int  setUrl(char * url);
@@ -34,21 +34,23 @@ public:
     // pause
     // seek
 
+protected:
+    void run();
 
 signals:
     void sendPacket(void * packet);
 
-public slots:
-    void init();
-    void play();
-
 
 private:
-    char runtimeStreamUrl[1024];  // the runtime stream url
-    QQueue<void *> packetQueue; // the queue for the packets after demux
-    QQueue<void *> frameQueue;  // the queue for the frames after decode
+    int startFlag;
+    char streamUrl[1024];  // the stream url
+    AVFormatContext *pFormatCtx;
+
+    //QQueue<void *> packetQueue; // the queue for the packets after demux
+    //QQueue<void *> frameQueue;  // the queue for the frames after decode
 
     /* funtions */
+    void clean(); // clean the object members
 
 };
 

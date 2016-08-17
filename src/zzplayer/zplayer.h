@@ -17,6 +17,8 @@ extern "C"{
 #include <QDebug>
 #include <QList>
 
+#include "zcapture.h"
+
 
 class ZPlayer : public QObject
 {
@@ -43,6 +45,7 @@ public:
 
     char streamUrl[1024];  // the stream url
 
+
     /* funtions */
     int  setUrl(char * url);
     // start
@@ -57,12 +60,16 @@ signals:
 public slots:
     void init();
     void play();
+    void getPacket(void *pkt);
 
 
 private:
     char runtimeStreamUrl[1024];  // the runtime stream url
-    QQueue<void *> packetQueue; // the queue for the packets after demux
-    QQueue<void *> frameQueue;  // the queue for the frames after decode
+    //QQueue<void *> packetQueue; // the queue for the packets after demux
+    //QQueue<void *> frameQueue;  // the queue for the frames after decode
+
+    ZCapture * captureThread;
+
 
     /* funtions */
 

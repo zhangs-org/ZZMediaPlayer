@@ -21,6 +21,9 @@ MainWindow::MainWindow(QWidget *parent) :
     //connect(OVideoDec,SIGNAL(SendImage(QImage)),this,SLOT(showVideo(QImage)));
     //connect(OVideoDec,SIGNAL(SendImage(QImage)),this,SLOT(showVideo(QImage)));
     connect(readTimer,SIGNAL(timeout()),this,SLOT(showVideo())); // by me
+
+
+
     qDebug()<<"MainWindow::MainWindow() over ";
 
 }

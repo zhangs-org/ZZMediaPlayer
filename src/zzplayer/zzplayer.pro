@@ -14,14 +14,16 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    zplayer.cpp
+    zplayer.cpp \
+    zcapture.cpp
 
 HEADERS  += mainwindow.h \
-    zplayer.h
+    zplayer.h \
+    zcapture.h
 
 FORMS    += mainwindow.ui
 
-LIBS += -L../lib -lavcodec -lavformat -lavfilter -lavutil -lswresample -lswscale -lpostproc
+LIBS += -LD:/work/ffmpeg-20160718-450cf40-win32-dev/lib -lavcodec -lavformat -lavfilter -lavutil -lswresample -lswscale -lpostproc
 
-INCLUDEPATH += ../include
-DEPENDPATH += ../include
+INCLUDEPATH += D:/work/ffmpeg-20160718-450cf40-win32-dev/include
+DEPENDPATH += D:/work/ffmpeg-20160718-450cf40-win32-dev/include

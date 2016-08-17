@@ -6,13 +6,18 @@ ZPlayer::ZPlayer(QObject *parent) :
     qDebug()<<"ZPlayer::ZPlayer()";
 }
 
+int ZPlayer::setUrl(char * url)
+{
+    strcpy(streamUrl, url);
+    return 0;
+}
+
 void ZPlayer::init()
 {
     qDebug()<<"ZPlayer::init()";
 
     BUFFSIZE = 0;
 
-    //avcodec_register_all();
     av_register_all();
     av_log_set_level(AV_LOG_DEBUG);
 
@@ -62,40 +67,58 @@ void ZPlayer::play()
     av_new_packet(&packet, pCodecCtx->width*pCodecCtx->height);
 
     uint8_t *out_buffer;
+    uint8_t *out_buffer2;
 
     qDebug()<<"width:" << pCodecCtx->width<< "height:" << pCodecCtx->height;
+    int out_width =  pCodecCtx->width;
+    int out_height = pCodecCtx->height;
 
     out_buffer = new uint8_t[avpicture_get_size(AV_PIX_FMT_RGB32, pCodecCtx->width, pCodecCtx->height)];//分配AVFrame所需内存
-    avpicture_fill((AVPicture *)pFrameRGB, out_buffer, AV_PIX_FMT_RGB32, pCodecCtx->width, pCodecCtx->height);//填充AVFrame
-    avpicture_fill((AVPicture *)pFrame, out_buffer, AV_PIX_FMT_RGB32, pCodecCtx->width, pCodecCtx->height);//填充AVFrame
+    out_buffer2 = new uint8_t[avpicture_get_size(AV_PIX_FMT_RGB32, pCodecCtx->width, pCodecCtx->height)];
+    avpicture_fill((AVPicture *)pFrameRGB, out_buffer, AV_PIX_FMT_RGB32, out_width, out_height);//填充AVFrame
+    avpicture_fill((AVPicture *)pFrame, out_buffer2, pCodecCtx->pix_fmt, pCodecCtx->width, pCodecCtx->height);//填充AVFrame
 
-    int out_width = 400;
-    int out_height = 200;
+
     SwsContext *convertCtx = NULL;
     while(1){
-        QThread::msleep(40);
-        if(BUFFSIZE>51) continue;
-        if(!(av_read_frame(pFormatCtx,&packet)>=0)) break;
+        QThread::msleep(25);
+        BUFFSIZE = VideoImg.count();
+        if(BUFFSIZE>100){
+            qDebug()<<"BUFFSIZE(" << BUFFSIZE << ")>100";
+            continue;
+        }
+        if(!(av_read_frame(pFormatCtx,&packet)>=0)){
+            qDebug()<<"av_read_frame error";
+            break;
+        }
+
         if(packet.stream_index == videoindex){
+            got_picture = 0;
             int rec = avcodec_decode_video2(pCodecCtx,pFrame,&got_picture,&packet);
-            if(rec>0){
+
+            qDebug()<<"avcodec_decode_video2 rec=" << rec << "got_picture=" << got_picture;
+
+            if(rec > 0 && got_picture>0){
+
+#if 1
                 if(convertCtx == NULL){
-                    convertCtx = sws_getContext(pCodecCtx->width,pCodecCtx->height
-                                                        ,pCodecCtx->pix_fmt,out_width,out_height
-                                                        ,AV_PIX_FMT_RGB32,SWS_BICUBIC,NULL,NULL,NULL);
+                    convertCtx = sws_getContext(pCodecCtx->width,pCodecCtx->height,pCodecCtx->pix_fmt,
+                                                out_width, out_height,AV_PIX_FMT_RGB32,
+                                                SWS_BICUBIC,NULL,NULL,NULL);
                 }
 
                 sws_scale(convertCtx,(const uint8_t*  const*)pFrame->data,pFrame->linesize,0
                           ,pCodecCtx->height,pFrameRGB->data,pFrameRGB->linesize);
-                QImage Img((uchar *)pFrameRGB->data[0],out_width,out_height,QImage::Format_RGB32);
+                QImage Img((uchar *)pFrameRGB->data[0],out_width, out_height,QImage::Format_RGB32);
                 VideoImg.append(Img.copy());
-                BUFFSIZE++;
-                sws_freeContext(convertCtx);
+
+#endif
             }
 
             av_free_packet(&packet);
         }
     }
+    sws_freeContext(convertCtx);
 
 }
 

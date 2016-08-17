@@ -33,14 +33,14 @@ MainWindow::~MainWindow()
 void MainWindow::on_play_clicked()
 {
     emit init_s();
-    readTimer->start(25);
+    readTimer->start(40);
     qDebug()<<"readTimer->start ";
 }
 
 void MainWindow::on_VideoPlay_clicked()
 {
     emit init_s();
-    readTimer->start(25);
+    readTimer->start(40);
     qDebug()<<"readTimer->start ";
 }
 
@@ -50,15 +50,16 @@ void MainWindow::showVideo()
 #if 1
     QPixmap pix;
     if(Player->VideoImg.isEmpty()) return;
-    pix = pix.fromImage(Player->VideoImg.at(BUFFINDEX));//.scaledToWidth(ui->VideoShow->width());
-    ui->videoShow->setPixmap(pix);
-    if(BUFFINDEX>50){
-        BUFFINDEX = 0;
-        Player->BUFFSIZE = 0;
-        Player->VideoImg.clear();
-        return;
+
+    qDebug()<<"MainWindow::showVideo, VideoImg.count=" << Player->VideoImg.count() << "BUFFINDEX=" << BUFFINDEX;
+
+    if(Player->VideoImg.count() > 0){
+
+        pix = pix.fromImage(Player->VideoImg.at(0));//.scaledToWidth(ui->VideoShow->width());
+        ui->videoShow->setPixmap(pix);
+        Player->VideoImg.removeAt(0);
+
     }
-    BUFFINDEX++;
 #endif
 }
 

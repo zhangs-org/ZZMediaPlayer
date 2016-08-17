@@ -1,5 +1,5 @@
-#ifndef ZPLAYER_H
-#define ZPLAYER_H
+#ifndef ZCAPTURE_H
+#define ZCAPTURE_H
 
 extern "C"{
     #include "libavcodec/avcodec.h"
@@ -17,28 +17,11 @@ extern "C"{
 #include <QDebug>
 #include <QList>
 
-
-class ZPlayer : public QObject
+class ZCapture : public QObject
 {
     Q_OBJECT
 public:
-    explicit ZPlayer(QObject *parent = 0);
-    struct ImgPacket{
-        QImage PImage;
-        struct ImgPacket *next;
-    };
-    int videoindex;
-    int BUFFSIZE;
-    AVFormatContext *pFormatCtx;
-    AVCodecContext *pCodecCtx;
-    AVCodec *pCodec;
-    AVPacket packet;
-    AVFrame *pFrame,*pFrameRGB;
-    char *FileName = "D:/video/Christmas.mp4";
-    //char *FileName = "D:/Desert.jpg";
-    QList<QImage> VideoImg;
-
-
+    explicit ZCapture(QObject *parent = 0);
 
 
     char streamUrl[1024];  // the stream url
@@ -49,10 +32,11 @@ public:
     // restart
     // stop
     // pause
+    // seek
 
 
 signals:
-    void SendImage(QImage img);
+    void sendPacket(void * packet);
 
 public slots:
     void init();
@@ -68,4 +52,5 @@ private:
 
 };
 
-#endif // ZPLAYER_H
+
+#endif // ZCAPTURE_H

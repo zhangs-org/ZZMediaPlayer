@@ -16,6 +16,7 @@ extern "C"{
 #include <QThread>
 #include <QDebug>
 #include <QList>
+#include <QQueue>
 
 class ZCapture : public QThread
 {
@@ -39,7 +40,10 @@ protected:
 
 signals:
     void sendPacket(void * packet);
-
+    void sendVideoPacket(void * packet);
+    void sendAudioPacket(void * packet);
+    void sendVideoCtx(void *);
+    void sendAudioCtx(void *);
 
 private:
     int startFlag;

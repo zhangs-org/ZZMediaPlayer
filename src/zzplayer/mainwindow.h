@@ -39,6 +39,7 @@ signals:
     void play_s();
 public slots:
     void showVideo();
+    void getInfo(void *pkt);
 private slots:
     void on_VideoPlay_clicked();
     void on_btnOpenFile_clicked();

@@ -15,11 +15,13 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     zplayer.cpp \
-    zcapture.cpp
+    zcapture.cpp \
+    zvideodecoder.cpp
 
 HEADERS  += mainwindow.h \
     zplayer.h \
-    zcapture.h
+    zcapture.h \
+    zvideodecoder.h
 
 FORMS    += mainwindow.ui
 

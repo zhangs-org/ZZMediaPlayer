@@ -11,18 +11,15 @@ MainWindow::MainWindow(QWidget *parent) :
     Player = new ZPlayer;
     readTimer = new QTimer(this);
     BUFFINDEX = 0;
-    Player->moveToThread(VideoDecThread);
-    qDebug()<<"moveToThread";
 
-    VideoDecThread->start();
-    qDebug()<<"moveToThread start ";
     connect(this,SIGNAL(init_s()),Player,SLOT(init()));
     connect(this,SIGNAL(play_s()),Player,SLOT(play()));
     //connect(OVideoDec,SIGNAL(SendImage(QImage)),this,SLOT(showVideo(QImage)));
     //connect(OVideoDec,SIGNAL(SendImage(QImage)),this,SLOT(showVideo(QImage)));
     connect(readTimer,SIGNAL(timeout()),this,SLOT(showVideo())); // by me
 
-
+    //connect(Player->captureThread,SIGNAL(sendPacket(void *)), this,SLOT(getInfo(void *)));
+    //connect(Player->captureThread,SIGNAL(sendPacket(void *)), Player->videoDecoder,SLOT(getVideoPacket(void *)));
 
     qDebug()<<"MainWindow::MainWindow() over ";
 
@@ -31,6 +28,13 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::getInfo(void *pkt)
+{
+    //qDebug()<<"MainWindow::getInfo ";
+    AVPacket *packet = (AVPacket *)pkt;
+    qDebug()<<"getInfo, index="<<packet->stream_index << " pts=" << packet->pts << " dts=" << packet->dts;
 }
 
 void MainWindow::on_play_clicked()

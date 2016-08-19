@@ -28,6 +28,8 @@ void ZCapture::run()
 
     AVPacket pkt;
     int ret;
+    int i;
+
     while(1){
         qDebug()<<"capture run";
 
@@ -50,8 +52,14 @@ void ZCapture::run()
                 continue ;
             }
 
-            //startFlag = 0; // after open stream set flag
+            for(i = 0; i < pFormatCtx->nb_streams; i++){
+                if(pFormatCtx->streams[i]->codec->codec_type == AVMEDIA_TYPE_VIDEO){
+                    emit sendVideoCtx(pFormatCtx->streams[i]->codec);
+                }
+            }
         }
+
+
 
         if(pFormatCtx){
             av_init_packet(&pkt);
@@ -76,10 +84,12 @@ void ZCapture::run()
                 continue ;
             }
 
-            //printf("index=%d, pts=%lld, dts=%lld.\n", pkt.stream_index, pkt.pts, pkt.dts);
             qDebug()<<"index="<<pkt.stream_index<<" pts="<<pkt.pts<< " dts=" << pkt.dts;
 
-            sendPacket(&pkt);
+            if(pFormatCtx->streams[pkt.stream_index]->codec->codec_type == AVMEDIA_TYPE_VIDEO){
+                emit sendVideoPacket(&pkt);
+            }
+            //sendPacket(&pkt);
         }
 
         QThread::msleep(500);

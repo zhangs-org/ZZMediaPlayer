@@ -18,7 +18,7 @@ extern "C"{
 #include <QList>
 
 #include "zcapture.h"
-
+#include "zvideodecoder.h"
 
 class ZPlayer : public QObject
 {
@@ -42,6 +42,8 @@ public:
 
 
 
+    ZCapture * captureThread;
+    ZVideoDecoder * videoDecoder;
 
     char streamUrl[1024];  // the stream url
 
@@ -68,7 +70,7 @@ private:
     //QQueue<void *> packetQueue; // the queue for the packets after demux
     //QQueue<void *> frameQueue;  // the queue for the frames after decode
 
-    ZCapture * captureThread;
+
 
 
     /* funtions */

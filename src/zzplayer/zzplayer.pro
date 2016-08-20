@@ -16,12 +16,14 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     zplayer.cpp \
     zcapture.cpp \
-    zvideodecoder.cpp
+    zvideodecoder.cpp \
+    zdisplay.cpp
 
 HEADERS  += mainwindow.h \
     zplayer.h \
     zcapture.h \
-    zvideodecoder.h
+    zvideodecoder.h \
+    zdisplay.h
 
 FORMS    += mainwindow.ui
 

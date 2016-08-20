@@ -6,16 +6,20 @@ ZPlayer::ZPlayer(QObject *parent) :
     qDebug()<<"ZPlayer::ZPlayer()";
 
     captureThread = new ZCapture;
-    videoDecoder = new ZVideoDecoder;
+    videoDecoderThread = new ZVideoDecoder;
+    displayThread = new ZDisplay;
 
-    captureThread->setUrl("D:/video/Christmas.mp4");
+    captureThread->setUrl("D:/video/trans.mp4");
 
     connect(captureThread,SIGNAL(sendPacket(void *)),this,SLOT(getPacket(void *)));
     captureThread->start();
 
-    connect(captureThread,SIGNAL(sendVideoPacket(void *)),videoDecoder,SLOT(handleVideoPacket(void *)));
-    connect(captureThread,SIGNAL(sendVideoCtx(void *)),videoDecoder,SLOT(handleCodecContext(void *)));
-    videoDecoder->start();
+    connect(captureThread,SIGNAL(sendVideoPacket(void *)),videoDecoderThread,SLOT(handleVideoPacket(void *)));
+    connect(captureThread,SIGNAL(sendVideoCtx(void *)),videoDecoderThread,SLOT(handleCodecContext(void *)));
+    videoDecoderThread->start();
+
+    connect(videoDecoderThread,SIGNAL(sendVideoFrame(void *)),displayThread,SLOT(handleVideoFrame(void *)));
+    displayThread->start();
 
 }
 

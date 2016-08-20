@@ -15,7 +15,13 @@ ZVideoDecoder::ZVideoDecoder(QObject *parent) :
 void ZVideoDecoder::run()
 {
 
+    AVPacket * pPkt = NULL;
+    AVFrame * pFrame = NULL;
+    int ret;
+    int got_frame;
+
     while(1){
+        //qDebug()<< "ZVideoDecoder::run()";
 
         // need to set decoder ?
         if(codecContextChange()){
@@ -27,13 +33,46 @@ void ZVideoDecoder::run()
 
 
         // get the packet from queue
+        if(!packetQueue.isEmpty()){
+            pPkt = (AVPacket *)packetQueue.dequeue();
+            qDebug()<< "ZVideoDecoder::run(), get Packet index=" << pPkt->stream_index << " pts=" << pPkt->pts;
 
-        // To decode when decoder has been inited
+            // To decode when decoder has been inited
+            if(pCodecCtx){
 
-        // free the
+
+                if(pFrame == NULL){
+                    pFrame = av_frame_alloc();
+                    if(!pFrame){
+                        qWarning("ZVideoDecoder::run(), error for av_frame_alloc.\n");
+                        break;
+                    }
+                }
+
+                // decode the frame
+                got_frame = 0;
+                ret = avcodec_decode_video2(pCodecCtx, pFrame, &got_frame, pPkt);
+                qDebug()<< "ZVideoDecoder::run(), avcodec_decode_video2 return:"<<ret<<" got_frame="<<got_frame;
+
+                // send frame
+                if(got_frame){
+                    // malloc for frame
+                    emit sendVideoFrame(pFrame);
+                    //pFrame = NULL;
+                }
 
 
-        QThread::msleep(500);
+            }
+
+            // free the packet
+            av_packet_unref(pPkt);
+            free(pPkt);
+        }
+
+
+
+
+        QThread::msleep(100);
 
     }
 }
@@ -97,6 +136,8 @@ void ZVideoDecoder::handleVideoPacket(void *pkt)
     AVPacket *packet = (AVPacket *)pkt;
     qDebug()<<"handleVideoPacket, index="<<packet->stream_index << " pts=" << packet->pts << " dts=" << packet->dts;
 
+    // push to queue
+    packetQueue.enqueue(pkt);
 }
 
 void ZVideoDecoder::handleCodecContext(void *ctx)
@@ -104,6 +145,9 @@ void ZVideoDecoder::handleCodecContext(void *ctx)
     pCodecCtxNew = (AVCodecContext *)ctx;
     getNewCodecContext = 1;
     qDebug()<<"ZVideoDecoder::handleCodecContext()";
+
+
+
 }
 
 

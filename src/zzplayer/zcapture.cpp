@@ -27,6 +27,7 @@ void ZCapture::run()
     av_log_set_level(AV_LOG_DEBUG);
 
     AVPacket pkt;
+    AVPacket * pPkt = NULL;
     int ret;
     int i;
 
@@ -57,16 +58,29 @@ void ZCapture::run()
                     emit sendVideoCtx(pFormatCtx->streams[i]->codec);
                 }
             }
+            // dump input information to stderr
+            av_dump_format(pFormatCtx, 0, streamUrl, 0);
+
         }
 
 
 
         if(pFormatCtx){
-            av_init_packet(&pkt);
-            pkt.data = NULL;
-            pkt.size = 0;
 
-            ret = av_read_frame(pFormatCtx, &pkt);
+            if(pPkt == NULL){
+                pPkt = (AVPacket *)malloc(sizeof(AVPacket));
+                if(!pPkt){
+                    qWarning("ZCapture::run(), error for malloc.\n");
+                    break;
+                }
+            }
+
+            // initialize packet, set data to NULL, let the demuxer fill it
+            av_init_packet(pPkt);
+            pPkt->data = NULL;
+            pPkt->size = 0;
+
+            ret = av_read_frame(pFormatCtx, pPkt);
             if (ret == AVERROR(EAGAIN)){
                 qWarning("av_read_frame ret=%d, EAGAIN means try again.\n", ret);
                 continue ;
@@ -84,12 +98,18 @@ void ZCapture::run()
                 continue ;
             }
 
-            qDebug()<<"index="<<pkt.stream_index<<" pts="<<pkt.pts<< " dts=" << pkt.dts;
+            qDebug()<<"ZCapture::run(),index="<<pPkt->stream_index<<" pts="<<pPkt->pts<< " dts=" << pPkt->dts;
 
-            if(pFormatCtx->streams[pkt.stream_index]->codec->codec_type == AVMEDIA_TYPE_VIDEO){
-                emit sendVideoPacket(&pkt);
+            if(pFormatCtx->streams[pPkt->stream_index]->codec->codec_type == AVMEDIA_TYPE_VIDEO){
+                emit sendVideoPacket(pPkt);
+            }else{
+                // free the packet
+                av_packet_unref(pPkt);
+                free(pPkt);
             }
-            //sendPacket(&pkt);
+            //sendPacket(pPkt);
+
+            pPkt = NULL;
         }
 
         QThread::msleep(500);

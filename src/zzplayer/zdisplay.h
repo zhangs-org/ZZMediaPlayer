@@ -28,8 +28,8 @@ public:
 protected:
     void run();
 
-//signals:
-//    void sendPicture(void *);
+signals:
+    void sendPicture(QImage);
 //    void sendVoice(void *);
 
 public slots:
@@ -39,7 +39,7 @@ public slots:
 
 private:
     QQueue<void *> frameQueue;
-    SwsContext *convertCtx;
+    SwsContext *imgConvertCtx;
 
 };
 

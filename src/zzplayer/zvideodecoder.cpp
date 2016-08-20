@@ -17,6 +17,7 @@ void ZVideoDecoder::run()
 
     AVPacket * pPkt = NULL;
     AVFrame * pFrame = NULL;
+    AVFrame * pFrameOut = NULL;
     int ret;
     int got_frame;
 
@@ -56,8 +57,11 @@ void ZVideoDecoder::run()
 
                 // send frame
                 if(got_frame){
-                    // malloc for frame
-                    emit sendVideoFrame(pFrame);
+                    // av_frame_clone
+                    pFrameOut = av_frame_clone(pFrame);
+
+                    if(pFrameOut)
+                        emit sendVideoFrame(pFrameOut);
                     //pFrame = NULL;
                 }
 
@@ -72,7 +76,7 @@ void ZVideoDecoder::run()
 
 
 
-        QThread::msleep(100);
+        QThread::msleep(10);
 
     }
 }

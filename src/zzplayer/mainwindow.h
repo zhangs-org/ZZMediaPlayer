@@ -40,6 +40,8 @@ signals:
 public slots:
     void showVideo();
     void getInfo(void *pkt);
+    void showPicture(QImage);
+
 private slots:
     void on_VideoPlay_clicked();
     void on_btnOpenFile_clicked();

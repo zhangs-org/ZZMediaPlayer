@@ -20,6 +20,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //connect(Player->captureThread,SIGNAL(sendPacket(void *)), this,SLOT(getInfo(void *)));
     //connect(Player->captureThread,SIGNAL(sendPacket(void *)), Player->videoDecoder,SLOT(getVideoPacket(void *)));
+    connect(Player->displayThread,SIGNAL(sendPicture(QImage)), this,SLOT(showPicture(QImage)));
 
     qDebug()<<"MainWindow::MainWindow() over ";
 
@@ -54,7 +55,7 @@ void MainWindow::on_VideoPlay_clicked()
 void MainWindow::showVideo()
 {
     qDebug()<<"MainWindow::showVideo()";
-#if 1
+
     QPixmap pix;
     if(Player->VideoImg.isEmpty()) return;
 
@@ -67,7 +68,16 @@ void MainWindow::showVideo()
         Player->VideoImg.removeAt(0);
 
     }
-#endif
+
+}
+
+void MainWindow::showPicture(QImage img)
+{
+    qDebug()<<"MainWindow::showPicture()";
+
+    QPixmap pix;
+    pix = pix.fromImage(img);
+    ui->videoShow->setPixmap(pix);
 }
 
 void MainWindow::on_btnOpenFile_clicked()

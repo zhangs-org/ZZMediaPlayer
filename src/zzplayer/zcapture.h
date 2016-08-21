@@ -50,9 +50,6 @@ private:
     char streamUrl[1024];  // the stream url
     AVFormatContext *pFormatCtx;
 
-    //QQueue<void *> packetQueue; // the queue for the packets after demux
-    //QQueue<void *> frameQueue;  // the queue for the frames after decode
-
     /* funtions */
     void clean(); // clean the object members
 

@@ -30,15 +30,17 @@ protected:
 
 signals:
     void sendPicture(QImage);
-//    void sendVoice(void *);
+    void sendVoice(void *);
 
 public slots:
     void handleVideoFrame(void *);
-//    void handleAudioFrame(void *);
+    void handleAudioFrame(void *);
 
 
 private:
     QQueue<void *> frameQueue;
+    QList<void *> videoFrameList;
+    QList<void *> audioFrameList;
     SwsContext *imgConvertCtx;
 
 };

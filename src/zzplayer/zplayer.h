@@ -38,7 +38,6 @@ public:
     AVPacket packet;
     AVFrame *pFrame,*pFrameRGB;
     char *FileName = "D:/video/Christmas.mp4";
-    //char *FileName = "D:/Desert.jpg";
     QList<QImage> VideoImg;
 
 

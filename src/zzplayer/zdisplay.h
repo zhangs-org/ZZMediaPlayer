@@ -24,6 +24,9 @@ class ZDisplay : public QThread
     Q_OBJECT
 public:
     explicit ZDisplay(QObject *parent = 0);
+    int displayWidth;
+    int displayHeight;
+
 
 protected:
     void run();

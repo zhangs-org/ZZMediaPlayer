@@ -13,6 +13,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this,SIGNAL(init_s()),Player,SLOT(init()));
     connect(this,SIGNAL(play_s()),Player,SLOT(play()));
 
+    connect(ui->actionOpen,SIGNAL(triggered()),this,SLOT(OpenFileClicked()));
 
     //connect(Player->captureThread,SIGNAL(sendPacket(void *)), this,SLOT(getInfo(void *)));
     connect(Player->displayThread,SIGNAL(sendPicture(QImage)), this,SLOT(showPicture(QImage)));
@@ -50,13 +51,15 @@ void MainWindow::showPicture(QImage img)
     ui->videoShow->setPixmap(pix);
 }
 
-void MainWindow::on_btnOpenFile_clicked()
+void MainWindow::OpenFileClicked()
 {
-#if 0
+
     FileName = QFileDialog::getOpenFileName(this,"Open Video","","video file(*.mp4 *.rmvb)");
     QByteArray byte = FileName.toLocal8Bit();
-    OVideoDec->FileName = byte.data();
-#endif
+    qDebug()<< "MainWindow::OpenFileClicked()" << byte.data();
+
+    Player->setUrl(byte.data());
+
 }
 
 

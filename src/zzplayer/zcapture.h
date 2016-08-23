@@ -24,7 +24,7 @@ class ZCapture : public QThread
 public:
     explicit ZCapture(QObject *parent = 0);
 
-
+    int bufferSize; // number of packets
 
 
     /* funtions */
@@ -49,6 +49,7 @@ private:
     int startFlag;
     char streamUrl[1024];  // the stream url
     AVFormatContext *pFormatCtx;
+    QQueue<void *> packetsQueue;
 
     /* funtions */
     void clean(); // clean the object members

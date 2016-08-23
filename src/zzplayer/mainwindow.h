@@ -39,7 +39,7 @@ public slots:
 
 private slots:
     void on_play_clicked();
-    void on_btnOpenFile_clicked();
+    void OpenFileClicked();
 
 private:
     Ui::MainWindow *ui;

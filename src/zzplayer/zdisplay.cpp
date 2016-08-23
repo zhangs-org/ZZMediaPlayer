@@ -6,6 +6,8 @@ ZDisplay::ZDisplay(QObject *parent) :
     qDebug()<<"ZDisplay::ZDisplay()";
 
     imgConvertCtx = NULL;
+    displayWidth  = 640;
+    displayHeight = 480;
 }
 
 void ZDisplay::run()
@@ -23,15 +25,17 @@ void ZDisplay::run()
                    <<pFrame->width<<" height:"<<pFrame->height<<" format:"<<pFrame->format;
 
 
+            // fixme: should add code for check the frame change
+
             if(!imgConvertCtx){
                 imgConvertCtx = sws_getContext(pFrame->width,pFrame->height,(enum AVPixelFormat)pFrame->format,
-                                               640,360,AV_PIX_FMT_RGB32,
+                                               displayWidth,displayHeight,AV_PIX_FMT_RGB32,
                                                SWS_BICUBIC,NULL,NULL,NULL);
 
                 //outBuffer = new uint8_t[avpicture_get_size(AV_PIX_FMT_RGB32, pFrame->width,pFrame->height)];
                 //avpicture_fill((AVPicture *)pFrameRGB, outBuffer, AV_PIX_FMT_RGB32,  pFrame->width,pFrame->height);
-                outBuffer = new uint8_t[avpicture_get_size(AV_PIX_FMT_RGB32, 640,360)];
-                avpicture_fill((AVPicture *)pFrameRGB, outBuffer, AV_PIX_FMT_RGB32, 640,360);
+                outBuffer = new uint8_t[avpicture_get_size(AV_PIX_FMT_RGB32, displayWidth,displayHeight)];
+                avpicture_fill((AVPicture *)pFrameRGB, outBuffer, AV_PIX_FMT_RGB32, displayWidth,displayHeight);
             }
 
 
@@ -40,7 +44,7 @@ void ZDisplay::run()
 
             av_frame_unref((AVFrame *)pFrame);
 
-            QImage Img((uchar *)pFrameRGB->data[0], 640,360, QImage::Format_RGB32);
+            QImage Img((uchar *)pFrameRGB->data[0], displayWidth,displayHeight, QImage::Format_RGB32);
 
             emit sendPicture(Img.copy());
         }
@@ -57,7 +61,7 @@ void ZDisplay::handleVideoFrame(void * pFrame)
     // push to queue
     if(pFrame)
         frameQueue.enqueue(pFrame);
-    //av_frame_unref((AVFrame *)pFrame); // for test
+
 }
 
 

@@ -9,7 +9,7 @@ ZPlayer::ZPlayer(QObject *parent) :
     videoDecoderThread = new ZVideoDecoder;
     displayThread = new ZDisplay;
 
-    captureThread->setUrl("D:/video/FCL_1080p.mp4");
+    //captureThread->setUrl("D:/video/FCL_1080p.mp4");
 
     connect(captureThread,SIGNAL(sendPacket(void *)),this,SLOT(getPacket(void *)));
     captureThread->start();

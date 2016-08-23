@@ -8,7 +8,7 @@ ZCapture::ZCapture(QObject *parent) :
     startFlag = 0;
     memset(streamUrl, 0, sizeof(streamUrl));
     pFormatCtx = NULL;
-
+    bufferSize = 100;
 }
 
 void ZCapture::clean()
@@ -28,11 +28,12 @@ void ZCapture::run()
 
     AVPacket pkt;
     AVPacket * pPkt = NULL;
+    AVPacket * pSendPkt = NULL;
     int ret;
     int i;
 
     while(1){
-        qDebug()<<"capture run";
+        //qDebug()<<"capture run";
 
         // start new stream
         if(startFlag && strlen(streamUrl) > 0){
@@ -100,19 +101,27 @@ void ZCapture::run()
 
             qDebug()<<"ZCapture::run(),index="<<pPkt->stream_index<<" pts="<<pPkt->pts<< " dts=" << pPkt->dts;
 
-            if(pFormatCtx->streams[pPkt->stream_index]->codec->codec_type == AVMEDIA_TYPE_VIDEO){
-                emit sendVideoPacket(pPkt);
+            // push the packet to queue
+            packetsQueue.enqueue((void *)pPkt);
+            pPkt = NULL;
+
+            // fixme: add if the packet should be sent
+
+            pSendPkt = (AVPacket *)packetsQueue.dequeue();
+            if(pFormatCtx->streams[pSendPkt->stream_index]->codec->codec_type == AVMEDIA_TYPE_VIDEO){
+                emit sendVideoPacket(pSendPkt);
             }else{
                 // free the packet
-                av_packet_unref(pPkt);
-                free(pPkt);
+                av_packet_unref(pSendPkt);
+                free(pSendPkt);
             }
-            //sendPacket(pPkt);
 
-            pPkt = NULL;
         }
 
-        QThread::msleep(30);
+        if(packetsQueue.size() > bufferSize){
+            qDebug()<<"ZCapture,packetsQueue.size()=" << packetsQueue.size() << ", bufferSize=" << bufferSize;
+            QThread::msleep(10);
+        }
     }
 }
 

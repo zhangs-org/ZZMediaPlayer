@@ -106,14 +106,15 @@ void ZCapture::run()
             pPkt = NULL;
 
             // fixme: add if the packet should be sent
-
-            pSendPkt = (AVPacket *)packetsQueue.dequeue();
-            if(pFormatCtx->streams[pSendPkt->stream_index]->codec->codec_type == AVMEDIA_TYPE_VIDEO){
-                emit sendVideoPacket(pSendPkt);
-            }else{
-                // free the packet
-                av_packet_unref(pSendPkt);
-                free(pSendPkt);
+            if(packetSouldSend()){
+                pSendPkt = (AVPacket *)packetsQueue.dequeue();
+                if(pFormatCtx->streams[pSendPkt->stream_index]->codec->codec_type == AVMEDIA_TYPE_VIDEO){
+                    emit sendVideoPacket(pSendPkt);
+                }else{
+                    // free the packet
+                    av_packet_unref(pSendPkt);
+                    free(pSendPkt);
+                }
             }
 
         }
@@ -132,3 +133,25 @@ int ZCapture::setUrl(char * url)
     qDebug()<<"ZCapture::setUrl, streamUrl" << streamUrl;
     return 0;
 }
+
+int ZCapture::packetSouldSend()
+{
+    AVPacket * pPkt = NULL;
+
+    // pick one packet queue
+    if(!packetsQueue.isEmpty()){
+        pPkt = (AVPacket *)packetsQueue.at(0);
+        qDebug()<<"ZCapture::packetSouldSend(), pPkt dts:" << pPkt->dts;
+
+        // fixme: add code for stream time and system time
+        return 1;
+    }
+
+
+    //
+
+    return 0;
+}
+
+
+

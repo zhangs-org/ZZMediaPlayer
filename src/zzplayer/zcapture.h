@@ -53,6 +53,7 @@ private:
 
     /* funtions */
     void clean(); // clean the object members
+    int  packetSouldSend(); // check the packet should be sent
 
 };
 

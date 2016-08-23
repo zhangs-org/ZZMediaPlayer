@@ -34,7 +34,7 @@ signals:
 
 public slots:
     void handleVideoFrame(void *);
-    void handleAudioFrame(void *);
+    //void handleAudioFrame(void *);
 
 
 private:

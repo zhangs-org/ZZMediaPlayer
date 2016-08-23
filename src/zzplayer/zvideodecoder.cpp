@@ -71,12 +71,15 @@ void ZVideoDecoder::run()
             // free the packet
             av_packet_unref(pPkt);
             free(pPkt);
+        }else{
+            // no data to sleep
+            QThread::msleep(10);
         }
 
 
 
 
-        QThread::msleep(10);
+
 
     }
 }

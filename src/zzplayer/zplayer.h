@@ -26,21 +26,6 @@ class ZPlayer : public QObject
     Q_OBJECT
 public:
     explicit ZPlayer(QObject *parent = 0);
-    struct ImgPacket{
-        QImage PImage;
-        struct ImgPacket *next;
-    };
-    int videoindex;
-    int BUFFSIZE;
-    AVFormatContext *pFormatCtx;
-    AVCodecContext *pCodecCtx;
-    AVCodec *pCodec;
-    AVPacket packet;
-    AVFrame *pFrame,*pFrameRGB;
-    char *FileName = "D:/video/Christmas.mp4";
-    QList<QImage> VideoImg;
-
-
 
     ZCapture * captureThread;
     ZVideoDecoder * videoDecoderThread;

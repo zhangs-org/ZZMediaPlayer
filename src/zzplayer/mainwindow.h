@@ -26,24 +26,19 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    QThread *VideoDecThread;
     ZPlayer *Player;
     QString FileName;
     QTimer *readTimer;
-    int BUFFINDEX;
-
-    void on_play_clicked();
 
 signals:
     void init_s();
     void play_s();
 public slots:
-    void showVideo();
     void getInfo(void *pkt);
     void showPicture(QImage);
 
 private slots:
-    void on_VideoPlay_clicked();
+    void on_play_clicked();
     void on_btnOpenFile_clicked();
 
 private:

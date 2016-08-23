@@ -36,7 +36,7 @@ void ZDisplay::run()
 
 
             sws_scale(imgConvertCtx,(const uint8_t*  const*)pFrame->data, pFrame->linesize,0
-                      ,640,pFrameRGB->data,pFrameRGB->linesize); // fixme:
+                      ,pFrame->height,pFrameRGB->data,pFrameRGB->linesize); // fixme:
 
             av_frame_unref((AVFrame *)pFrame);
 

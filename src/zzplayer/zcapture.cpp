@@ -112,7 +112,7 @@ void ZCapture::run()
             pPkt = NULL;
         }
 
-        QThread::msleep(40);
+        QThread::msleep(30);
     }
 }
 

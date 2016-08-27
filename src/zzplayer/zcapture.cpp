@@ -8,17 +8,50 @@ ZCapture::ZCapture(QObject *parent) :
     startFlag = 0;
     memset(streamUrl, 0, sizeof(streamUrl));
     pFormatCtx = NULL;
-    bufferSize = 100;
+    bufferSize = 500;
+
+    memset(streamStartTime, 0, sizeof(streamStartTime));
+
+    CapTimebase = 1000000;
+    CapTimebaseQ = (AVRational){1, 1000000};
+
+    capVideoStreamIndex = -1;
+    capAudioStreamIndex = -1;
 }
 
 void ZCapture::clean()
 {
+    AVPacket * pPkt = NULL;
+    AVPacket * pSendPkt = NULL;
+
     qDebug()<<"ZCapture::clean()";
+    // flush buffer data
+    while(!packetsQueue.isEmpty()){
+        pSendPkt = (AVPacket *)packetsQueue.dequeue();
+        if(pFormatCtx->streams[pSendPkt->stream_index]->codec->codec_type == AVMEDIA_TYPE_VIDEO
+                && pSendPkt->stream_index == capVideoStreamIndex){
+
+            emit sendVideoPacket(pSendPkt);
+        }else if(pFormatCtx->streams[pSendPkt->stream_index]->codec->codec_type == AVMEDIA_TYPE_AUDIO
+                 && pSendPkt->stream_index == capAudioStreamIndex){
+
+            emit sendAudioPacket(pSendPkt);
+        }else{
+            // free the packet
+            av_packet_unref(pSendPkt);
+            free(pSendPkt);
+        }
+    }
+
+    // close stream
     if(pFormatCtx){
         avformat_close_input(&pFormatCtx);
     }
 
+    pFormatCtx = NULL;
     startFlag = 0;
+    capVideoStreamIndex = -1;
+    capAudioStreamIndex = -1;
 }
 
 void ZCapture::run()
@@ -55,8 +88,13 @@ void ZCapture::run()
             }
 
             for(i = 0; i < pFormatCtx->nb_streams; i++){
-                if(pFormatCtx->streams[i]->codec->codec_type == AVMEDIA_TYPE_VIDEO){
+                if(pFormatCtx->streams[i]->codec->codec_type == AVMEDIA_TYPE_VIDEO && capVideoStreamIndex < 0){
+                    capVideoStreamIndex = i;
                     emit sendVideoCtx(pFormatCtx->streams[i]->codec);
+                }
+                if(pFormatCtx->streams[i]->codec->codec_type == AVMEDIA_TYPE_AUDIO && capAudioStreamIndex < 0){
+                    capAudioStreamIndex = i;
+                    emit sendAudioCtx(pFormatCtx->streams[i]->codec);
                 }
             }
             // dump input information to stderr
@@ -106,22 +144,31 @@ void ZCapture::run()
             pPkt = NULL;
 
             // fixme: add if the packet should be sent
-            if(packetSouldSend()){
+            if(packetShouldSend()){
                 pSendPkt = (AVPacket *)packetsQueue.dequeue();
-                if(pFormatCtx->streams[pSendPkt->stream_index]->codec->codec_type == AVMEDIA_TYPE_VIDEO){
+                if(pFormatCtx->streams[pSendPkt->stream_index]->codec->codec_type == AVMEDIA_TYPE_VIDEO
+                        && pSendPkt->stream_index == capVideoStreamIndex){
+
                     emit sendVideoPacket(pSendPkt);
+                }else if(pFormatCtx->streams[pSendPkt->stream_index]->codec->codec_type == AVMEDIA_TYPE_AUDIO
+                         && pSendPkt->stream_index == capAudioStreamIndex){
+
+                    emit sendAudioPacket(pSendPkt);
                 }else{
                     // free the packet
                     av_packet_unref(pSendPkt);
                     free(pSendPkt);
                 }
+                qDebug()<<"ZCapture,packetsQueue.size()=" << packetsQueue.size();
+            }else{
+                QThread::msleep(50);
             }
-
+        }else{
+            QThread::msleep(50);
         }
 
         if(packetsQueue.size() > bufferSize){
-            qDebug()<<"ZCapture,packetsQueue.size()=" << packetsQueue.size() << ", bufferSize=" << bufferSize;
-            QThread::msleep(10);
+            QThread::msleep(50);
         }
     }
 }
@@ -134,17 +181,62 @@ int ZCapture::setUrl(char * url)
     return 0;
 }
 
-int ZCapture::packetSouldSend()
+void ZCapture::getCurrentMS(int64_t *retval)
+{
+    int64_t current_ms = 0ULL;
+    struct timeval tp;
+
+    if (gettimeofday(&tp, NULL) != 0) {
+        //printf("gettimeofday failed: %s", strerror(errno));
+        return;
+    }
+
+    current_ms = tp.tv_sec;
+    current_ms *= 1000;
+    current_ms += tp.tv_usec / 1000;
+
+    *retval = current_ms;
+}
+
+int ZCapture::packetShouldSend()
 {
     AVPacket * pPkt = NULL;
+
+    int64_t now;
+    int64_t dt;
 
     // pick one packet queue
     if(!packetsQueue.isEmpty()){
         pPkt = (AVPacket *)packetsQueue.at(0);
-        qDebug()<<"ZCapture::packetSouldSend(), pPkt dts:" << pPkt->dts;
+        qDebug()<<"ZCapture::packetShouldSend(), stream_index" << pPkt->stream_index <<" pPkt dts:" << pPkt->dts;
 
-        // fixme: add code for stream time and system time
-        return 1;
+        if(streamStartTime[pPkt->stream_index] == 0){
+            streamStartTime[pPkt->stream_index] = pPkt->dts;
+        }
+
+        // for test
+        if(pFormatCtx->streams[pPkt->stream_index]->codec->codec_type == AVMEDIA_TYPE_VIDEO)
+            return 1;
+
+        if(captureStartTime <= 0){
+            getCurrentMS(&captureStartTime);
+        }
+
+        getCurrentMS(&now);
+        dt = pPkt->dts - streamStartTime[pPkt->stream_index];
+
+        // trans to ms timebase
+        dt = av_rescale_q(dt, pFormatCtx->streams[pPkt->stream_index]->codec->time_base, (AVRational){1, 1000});
+
+        qDebug()<<"ZCapture::packetShouldSend(), dt:" << dt << " now-startTime=" << (now - captureStartTime);
+
+        if( dt <= (now - captureStartTime + 200) || dt <= 0 ){
+            qDebug()<<"ZCapture::packetShouldSend() true";
+            return 1;
+        }
+
+
+        streamLastDTS[pPkt->stream_index] = pPkt->dts;
     }
 
 

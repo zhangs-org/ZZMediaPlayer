@@ -9,7 +9,7 @@ extern "C"{
     #include "libavutil/fifo.h"
     #include "libswscale/swscale.h"
     #include <libavutil/dict.h>
-
+    #include <sys/time.h>
 }
 #include <QObject>
 #include <QImage>
@@ -50,10 +50,19 @@ private:
     char streamUrl[1024];  // the stream url
     AVFormatContext *pFormatCtx;
     QQueue<void *> packetsQueue;
+    int64_t captureStartTime;
+    int64_t streamStartTime[64];
+    int64_t streamLastDTS[64];
+    int CapTimebase;
+    AVRational CapTimebaseQ;
+
+    int capVideoStreamIndex; // default use first video stream
+    int capAudioStreamIndex; // default use first audio stream
 
     /* funtions */
     void clean(); // clean the object members
-    int  packetSouldSend(); // check the packet should be sent
+    int  packetShouldSend(); // check the packet should be sent
+    void getCurrentMS(int64_t *retval);
 
 };
 

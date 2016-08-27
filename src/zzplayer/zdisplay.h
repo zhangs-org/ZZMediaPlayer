@@ -18,6 +18,9 @@ extern "C"{
 #include <QList>
 #include <QQueue>
 
+#include <QAudioOutput>
+#include <QByteArray>
+
 
 class ZDisplay : public QThread
 {
@@ -37,15 +40,23 @@ signals:
 
 public slots:
     void handleVideoFrame(void *);
-    //void handleAudioFrame(void *);
+    void handleAudioFrame(void *);
 
 
 private:
-    QQueue<void *> frameQueue;
+    QQueue<void *> videoFrameQueue;
+    QQueue<void *> audioFrameQueue;
+
     QList<void *> videoFrameList;
     QList<void *> audioFrameList;
-    SwsContext *imgConvertCtx;
+    SwsContext *imgConvertCtx; // for video
 
+    QAudioOutput* audioOutput; // for audio
+    QIODevice * streamOut; // for audio
+    QByteArray tempBuffer;
+
+    int setAudioOutput();
+    void sendAudio(AVFrame * pFrame);
 };
 
 #endif // ZDISPLAY_H

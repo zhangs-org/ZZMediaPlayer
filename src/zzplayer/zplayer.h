@@ -19,6 +19,7 @@ extern "C"{
 
 #include "zcapture.h"
 #include "zvideodecoder.h"
+#include "zaudiodecoder.h"
 #include "zdisplay.h"
 
 class ZPlayer : public QObject
@@ -29,6 +30,7 @@ public:
 
     ZCapture * captureThread;
     ZVideoDecoder * videoDecoderThread;
+    ZAudioDecoder * audioDecoderThread;
     ZDisplay * displayThread;
 
     char streamUrl[1024];  // the stream url

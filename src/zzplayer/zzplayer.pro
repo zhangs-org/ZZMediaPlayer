@@ -5,6 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui
+QT += multimedia
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -17,13 +18,15 @@ SOURCES += main.cpp\
     zplayer.cpp \
     zcapture.cpp \
     zvideodecoder.cpp \
-    zdisplay.cpp
+    zdisplay.cpp \
+    zaudiodecoder.cpp
 
 HEADERS  += mainwindow.h \
     zplayer.h \
     zcapture.h \
     zvideodecoder.h \
-    zdisplay.h
+    zdisplay.h \
+    zaudiodecoder.h
 
 FORMS    += mainwindow.ui
 

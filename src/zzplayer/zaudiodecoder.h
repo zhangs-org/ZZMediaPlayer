@@ -1,5 +1,5 @@
-#ifndef ZVIDEODECODER_H
-#define ZVIDEODECODER_H
+#ifndef ZAUDIODECODER_H
+#define ZAUDIODECODER_H
 
 extern "C"{
     #include "libavcodec/avcodec.h"
@@ -19,11 +19,11 @@ extern "C"{
 #include <QQueue>
 
 
-class ZVideoDecoder : public QThread
+class ZAudioDecoder : public QThread
 {
     Q_OBJECT
 public:
-    explicit ZVideoDecoder(QObject *parent = 0);
+    explicit ZAudioDecoder(QObject *parent = 0);
 
 protected:
     void run();
@@ -47,4 +47,4 @@ private:
     int decode();
 };
 
-#endif // ZVIDEODECODER_H
+#endif // ZAUDIODECODER_H

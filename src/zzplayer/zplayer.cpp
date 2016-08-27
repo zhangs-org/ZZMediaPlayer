@@ -7,18 +7,25 @@ ZPlayer::ZPlayer(QObject *parent) :
 
     captureThread = new ZCapture;
     videoDecoderThread = new ZVideoDecoder;
+    audioDecoderThread = new ZAudioDecoder;
     displayThread = new ZDisplay;
+
 
     //captureThread->setUrl("D:/video/FCL_1080p.mp4");
 
     connect(captureThread,SIGNAL(sendPacket(void *)),this,SLOT(getPacket(void *)));
     captureThread->start();
 
-    connect(captureThread,SIGNAL(sendVideoPacket(void *)),videoDecoderThread,SLOT(handleVideoPacket(void *)));
-    connect(captureThread,SIGNAL(sendVideoCtx(void *)),videoDecoderThread,SLOT(handleCodecContext(void *)));
-    videoDecoderThread->start();
+    //connect(captureThread,SIGNAL(sendVideoPacket(void *)),videoDecoderThread,SLOT(handlePacket(void *)));
+    //connect(captureThread,SIGNAL(sendVideoCtx(void *)),videoDecoderThread,SLOT(handleCodecContext(void *)));
+    connect(captureThread,SIGNAL(sendAudioPacket(void *)),audioDecoderThread,SLOT(handlePacket(void *)));
+    connect(captureThread,SIGNAL(sendAudioCtx(void *)),audioDecoderThread,SLOT(handleCodecContext(void *)));
 
-    connect(videoDecoderThread,SIGNAL(sendVideoFrame(void *)),displayThread,SLOT(handleVideoFrame(void *)));
+    videoDecoderThread->start();
+    audioDecoderThread->start();
+
+    connect(videoDecoderThread,SIGNAL(sendFrame(void *)),displayThread,SLOT(handleVideoFrame(void *)));
+    connect(audioDecoderThread,SIGNAL(sendFrame(void *)),displayThread,SLOT(handleAudioFrame(void *)));
     displayThread->start();
 
 }

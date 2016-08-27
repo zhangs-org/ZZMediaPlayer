@@ -1,18 +1,17 @@
-#include "zvideodecoder.h"
-
+#include "zaudiodecoder.h"
 
 /* functios */
-ZVideoDecoder::ZVideoDecoder(QObject *parent) :
+ZAudioDecoder::ZAudioDecoder(QObject *parent) :
     QThread(parent)
 {
-    qDebug()<<"ZVideoDecoder::ZVideoDecoder()";
+    qDebug()<<"ZAudioDecoder::ZAudioDecoder()";
 
     // init
     pCodecCtx = NULL;
     getNewCodecContext = 0;
 }
 
-void ZVideoDecoder::run()
+void ZAudioDecoder::run()
 {
 
     AVPacket * pPkt = NULL;
@@ -20,9 +19,10 @@ void ZVideoDecoder::run()
     AVFrame * pFrameOut = NULL;
     int ret;
     int got_frame;
+    int decoded;
 
     while(1){
-        //qDebug()<< "ZVideoDecoder::run()";
+        //qDebug()<< "ZAudioDecoder::run()";
 
         // need to set decoder ?
         if(codecContextChange()){
@@ -36,7 +36,7 @@ void ZVideoDecoder::run()
         // get the packet from queue
         if(!packetQueue.isEmpty()){
             pPkt = (AVPacket *)packetQueue.dequeue();
-            qDebug()<< "ZVideoDecoder::run(), get Packet index=" << pPkt->stream_index << " pts=" << pPkt->pts;
+            qDebug()<< "ZAudioDecoder::run(), get Packet index=" << pPkt->stream_index << " pts=" << pPkt->pts;
 
             // To decode when decoder has been inited
             if(pCodecCtx){
@@ -45,15 +45,22 @@ void ZVideoDecoder::run()
                 if(pFrame == NULL){
                     pFrame = av_frame_alloc();
                     if(!pFrame){
-                        qWarning("ZVideoDecoder::run(), error for av_frame_alloc.\n");
+                        qWarning("ZAudioDecoder::run(), error for av_frame_alloc.\n");
                         break;
                     }
                 }
 
                 // decode the frame
                 got_frame = 0;
-                ret = avcodec_decode_video2(pCodecCtx, pFrame, &got_frame, pPkt);
-                qDebug()<< "ZVideoDecoder::run(), avcodec_decode_video2 return:"<<ret<<" got_frame="<<got_frame;
+                ret = avcodec_decode_audio4(pCodecCtx, pFrame, &got_frame, pPkt);
+                qDebug()<< "ZAudioDecoder::run(), avcodec_decode_video2 return:"<<ret<<" got_frame="<<got_frame;
+
+                /* Some audio decoders decode only part of the packet, and have to be
+                 * called again with the remainder of the packet data.
+                 * Sample: fate-suite/lossless-audio/luckynight-partial.shn
+                 * Also, some decoders might over-read the packet. */
+
+                decoded = ret > pPkt->size ? pPkt->size : ret;
 
                 // send frame
                 if(got_frame){
@@ -84,7 +91,7 @@ void ZVideoDecoder::run()
     }
 }
 
-int ZVideoDecoder::codecContextChange()
+int ZAudioDecoder::codecContextChange()
 {
     if(getNewCodecContext > 0){
         getNewCodecContext = 0;
@@ -94,10 +101,10 @@ int ZVideoDecoder::codecContextChange()
     return 0;
 }
 
-int ZVideoDecoder::resetCodecContext()
+int ZAudioDecoder::resetCodecContext()
 {
     int ret;
-    qDebug()<<"ZVideoDecoder::resetCodecContext()";
+    qDebug()<<"ZAudioDecoder::resetCodecContext()";
 
     if(!pCodecCtxNew){
         return -1;
@@ -132,34 +139,27 @@ int ZVideoDecoder::resetCodecContext()
         return ret;
     }
 
-    qDebug()<<"ZVideoDecoder::resetCodecContext() ok ";
+    qDebug()<<"ZAudioDecoder::resetCodecContext() ok ";
     return 0;
 }
 
 
 /* slots */
-void ZVideoDecoder::handlePacket(void *pkt)
+void ZAudioDecoder::handlePacket(void *pkt)
 {
     AVPacket *packet = (AVPacket *)pkt;
-    qDebug()<<"ZVideoDecoder::handlePacket(),handlePacket, index="<<packet->stream_index << " pts=" << packet->pts << " dts=" << packet->dts;
+    qDebug()<<"ZAudioDecoder::handlePacket(), handlePacket, index="<<packet->stream_index << " pts=" << packet->pts << " dts=" << packet->dts;
 
     // push to queue
     packetQueue.enqueue(pkt);
 }
 
-void ZVideoDecoder::handleCodecContext(void *ctx)
+void ZAudioDecoder::handleCodecContext(void *ctx)
 {
     pCodecCtxNew = (AVCodecContext *)ctx;
     getNewCodecContext = 1;
-    qDebug()<<"ZVideoDecoder::handleCodecContext()";
+    qDebug()<<"ZAudioDecoder::handleCodecContext()";
 
 
 
 }
-
-
-
-
-
-
-

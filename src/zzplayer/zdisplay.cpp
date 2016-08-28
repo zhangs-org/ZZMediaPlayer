@@ -84,13 +84,20 @@ void ZDisplay::sendAudio(AVFrame * pFrame)
 {
     int unpadded_linesize = pFrame->nb_samples * av_get_bytes_per_sample((enum AVSampleFormat)pFrame->format);
 
+    qDebug()<<"sendAudio, unpadded_linesize="<<unpadded_linesize;
+
     tempBuffer.append((const char *)pFrame->extended_data[0],unpadded_linesize);
 
     if(audioOutput&&audioOutput->state()!=QAudio::StoppedState&&
             audioOutput->state()!=QAudio::SuspendedState)
     {
         int chunks = audioOutput->bytesFree()/audioOutput->periodSize();
-        while (chunks)
+
+        qDebug()<<"sendAudio, chunks="<<chunks << " bytesFree="<<audioOutput->bytesFree() << " periodSize="<<audioOutput->periodSize();
+        streamOut->write(tempBuffer);
+        tempBuffer.clear();
+
+        while (0)
         {
             if (tempBuffer.length() >= audioOutput->periodSize())
             {
@@ -100,6 +107,7 @@ void ZDisplay::sendAudio(AVFrame * pFrame)
             }
             else
             {
+                break;
                 //写入到扬声器
                 streamOut->write(tempBuffer);
                 tempBuffer.clear();

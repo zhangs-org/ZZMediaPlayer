@@ -65,11 +65,11 @@ int ZDisplay::setAudioOutput()
 
     audioFormat.setSampleRate(44100);
     audioFormat.setChannelCount(2);
-    audioFormat.setSampleSize(16);
+    audioFormat.setSampleSize(32);
     audioFormat.setCodec("audio/pcm");
 
     audioFormat.setByteOrder(QAudioFormat::LittleEndian);
-    audioFormat.setSampleType(QAudioFormat::UnSignedInt);
+    audioFormat.setSampleType(QAudioFormat::Float);
 
     QAudioDeviceInfo info = QAudioDeviceInfo::defaultOutputDevice();
     if (!info.isFormatSupported(audioFormat)) {
@@ -84,7 +84,10 @@ void ZDisplay::sendAudio(AVFrame * pFrame)
 {
     int unpadded_linesize = pFrame->nb_samples * av_get_bytes_per_sample((enum AVSampleFormat)pFrame->format);
 
-    qDebug()<<"sendAudio, unpadded_linesize="<<unpadded_linesize;
+    // fixme: the sample should be resample
+
+    qDebug()<<"sendAudio, unpadded_linesize="<<unpadded_linesize<<" format="<<pFrame->format
+           <<" linesize[0]=" << pFrame->linesize[0] << " linesize[1]=" << pFrame->linesize[1];
 
     tempBuffer.append((const char *)pFrame->extended_data[0],unpadded_linesize);
 

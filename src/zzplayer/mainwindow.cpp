@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include "timestamp.h"
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -14,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this,SIGNAL(play_s()),Player,SLOT(play()));
 
     connect(ui->actionOpen,SIGNAL(triggered()),this,SLOT(OpenFileClicked()));
+    connect(ui->actionTimestamp,SIGNAL(triggered()),this,SLOT(ToolTimestamp()));
 
     //connect(Player->captureThread,SIGNAL(sendPacket(void *)), this,SLOT(getInfo(void *)));
     connect(Player->displayThread,SIGNAL(sendPicture(QImage)), this,SLOT(showPicture(QImage)));
@@ -62,4 +65,10 @@ void MainWindow::OpenFileClicked()
 
 }
 
+void MainWindow::ToolTimestamp()
+{
+
+    Timestamp *dialog = new Timestamp;
+    dialog->show();
+}
 

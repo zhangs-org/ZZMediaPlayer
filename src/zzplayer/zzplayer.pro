@@ -19,16 +19,19 @@ SOURCES += main.cpp\
     zcapture.cpp \
     zvideodecoder.cpp \
     zdisplay.cpp \
-    zaudiodecoder.cpp
+    zaudiodecoder.cpp \
+    timestamp.cpp
 
 HEADERS  += mainwindow.h \
     zplayer.h \
     zcapture.h \
     zvideodecoder.h \
     zdisplay.h \
-    zaudiodecoder.h
+    zaudiodecoder.h \
+    timestamp.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    timestamp.ui
 
 LIBS += -LD:/work/ffmpeg-20160718-450cf40-win32-dev/lib -lavcodec -lavformat -lavfilter -lavutil -lswresample -lswscale -lpostproc
 

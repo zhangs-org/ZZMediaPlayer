@@ -56,7 +56,14 @@
     </property>
     <addaction name="actionOpen"/>
    </widget>
+   <widget class="QMenu" name="menu_2">
+    <property name="title">
+     <string>工具</string>
+    </property>
+    <addaction name="actionTimestamp"/>
+   </widget>
    <addaction name="menu"/>
+   <addaction name="menu_2"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -69,7 +76,12 @@
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionOpen">
    <property name="text">
-    <string>open</string>
+    <string>打开文件</string>
+   </property>
+  </action>
+  <action name="actionTimestamp">
+   <property name="text">
+    <string>时间戳分析</string>
    </property>
   </action>
  </widget>

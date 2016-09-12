@@ -40,6 +40,7 @@ public slots:
 private slots:
     void on_play_clicked();
     void OpenFileClicked();
+    void ToolTimestamp();
 
 private:
     Ui::MainWindow *ui;

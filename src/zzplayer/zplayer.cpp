@@ -16,8 +16,8 @@ ZPlayer::ZPlayer(QObject *parent) :
     connect(captureThread,SIGNAL(sendPacket(void *)),this,SLOT(getPacket(void *)));
     captureThread->start();
 
-    //connect(captureThread,SIGNAL(sendVideoPacket(void *)),videoDecoderThread,SLOT(handlePacket(void *)));
-    //connect(captureThread,SIGNAL(sendVideoCtx(void *)),videoDecoderThread,SLOT(handleCodecContext(void *)));
+    connect(captureThread,SIGNAL(sendVideoPacket(void *)),videoDecoderThread,SLOT(handlePacket(void *)));
+    connect(captureThread,SIGNAL(sendVideoCtx(void *)),videoDecoderThread,SLOT(handleCodecContext(void *)));
     connect(captureThread,SIGNAL(sendAudioPacket(void *)),audioDecoderThread,SLOT(handlePacket(void *)));
     connect(captureThread,SIGNAL(sendAudioCtx(void *)),audioDecoderThread,SLOT(handleCodecContext(void *)));
 

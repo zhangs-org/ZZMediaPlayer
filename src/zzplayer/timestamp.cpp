@@ -19,7 +19,7 @@ Timestamp::Timestamp(QWidget *parent) :
 
     QwtPlotCurve *curve = new QwtPlotCurve();
     curve->setTitle( "Some Points" );
-    curve->setPen( Qt::blue, 4 ),
+    curve->setPen( Qt::blue, 1 ),
     curve->setRenderHint( QwtPlotItem::RenderAntialiased, true );
 
     QwtSymbol *symbol = new QwtSymbol( QwtSymbol::Ellipse,
@@ -40,3 +40,13 @@ Timestamp::~Timestamp()
 {
     delete ui;
 }
+
+
+/* slots */
+void Timestamp::handlePacket(void *pkt)
+{
+    AVPacket *packet = (AVPacket *)pkt;
+    qDebug()<<"Timestamp::handlePacket(),handlePacket, index="<<packet->stream_index << " pts=" << packet->pts << " dts=" << packet->dts;
+
+}
+

@@ -69,6 +69,8 @@ void MainWindow::ToolTimestamp()
 {
 
     Timestamp *dialog = new Timestamp;
+    connect(Player->captureThread,SIGNAL(sendPacket(void *)), dialog,SLOT(handlePacket(void *)));
+
     dialog->show();
 }
 

@@ -11,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     Player = new ZPlayer;
     readTimer = new QTimer(this);
+    TimestampDialog = new Timestamp;
 
     connect(this,SIGNAL(init_s()),Player,SLOT(init()));
     connect(this,SIGNAL(play_s()),Player,SLOT(play()));
@@ -18,8 +19,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionOpen,SIGNAL(triggered()),this,SLOT(OpenFileClicked()));
     connect(ui->actionTimestamp,SIGNAL(triggered()),this,SLOT(ToolTimestamp()));
 
-    //connect(Player->captureThread,SIGNAL(sendPacket(void *)), this,SLOT(getInfo(void *)));
+    connect(Player->captureThread,SIGNAL(sendPacket(void *)), this,SLOT(getInfo(void *)));
     connect(Player->displayThread,SIGNAL(sendPicture(QImage)), this,SLOT(showPicture(QImage)));
+
+    connect(Player->captureThread,SIGNAL(sendVideoPacket(void *)), TimestampDialog,SLOT(handlePacket(void *)));
 
     qDebug()<<"MainWindow::MainWindow() over ";
 
@@ -68,9 +71,9 @@ void MainWindow::OpenFileClicked()
 void MainWindow::ToolTimestamp()
 {
 
-    Timestamp *dialog = new Timestamp;
-    connect(Player->captureThread,SIGNAL(sendPacket(void *)), dialog,SLOT(handlePacket(void *)));
+    //Timestamp *TimestampDialog = new Timestamp;
+    //connect(Player->captureThread,SIGNAL(sendPacket(void *)), TimestampDialog,SLOT(handlePacket(void *)));
 
-    dialog->show();
+    TimestampDialog->show();
 }
 

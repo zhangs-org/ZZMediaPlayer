@@ -1,11 +1,7 @@
 #include "timestamp.h"
 #include "ui_timestamp.h"
 
-#include <qwt_plot.h>
-#include <qwt_plot_curve.h>
-#include <qwt_plot_grid.h>
-#include <qwt_symbol.h>
-#include <qwt_legend.h>
+
 
 Timestamp::Timestamp(QWidget *parent) :
     QDialog(parent),
@@ -13,27 +9,34 @@ Timestamp::Timestamp(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    showTimer = new QTimer(this);
+    showTimer->start(500);
+    connect(showTimer,SIGNAL(timeout()),this,SLOT(showFlots()));
+
     // for test
-    QwtPlotGrid *grid = new QwtPlotGrid();
+    grid = new QwtPlotGrid();
+    curve = new QwtPlotCurve();
+
     grid->attach(ui->qwtPlot);
 
-    QwtPlotCurve *curve = new QwtPlotCurve();
+
     curve->setTitle( "Some Points" );
     curve->setPen( Qt::blue, 1 ),
     curve->setRenderHint( QwtPlotItem::RenderAntialiased, true );
 
-    QwtSymbol *symbol = new QwtSymbol( QwtSymbol::Ellipse,
-        QBrush( Qt::yellow ), QPen( Qt::red, 2 ), QSize( 8, 8 ) );
-    curve->setSymbol( symbol );
+    //QwtSymbol *symbol = new QwtSymbol( QwtSymbol::Ellipse,
+    //    QBrush( Qt::yellow ), QPen( Qt::red, 2 ), QSize( 4,4 ) );
+    //curve->setSymbol( symbol );
 
     QPolygonF points;
     points << QPointF( 0.0, 4.4 ) << QPointF( 1.0, 3.0 )
         << QPointF( 2.0, 4.5 ) << QPointF( 3.0, 6.8 )
-        << QPointF( 4.0, 7.9 ) << QPointF( 5.0, 7.1 );
+        << QPointF( 4.0, 7.9 ) << QPointF( 5.0, 7.1 )<< QPointF( 6.0, 7.9 ) << QPointF( 7.0, 7.1 )<< QPointF( 8.0, 7.9 ) << QPointF( 9.0, 7.1 );
     curve->setSamples( points );
 
     curve->attach(ui->qwtPlot);
     ui->qwtPlot->show();
+
 }
 
 Timestamp::~Timestamp()
@@ -48,5 +51,40 @@ void Timestamp::handlePacket(void *pkt)
     AVPacket *packet = (AVPacket *)pkt;
     qDebug()<<"Timestamp::handlePacket(),handlePacket, index="<<packet->stream_index << " pts=" << packet->pts << " dts=" << packet->dts;
 
+    tsQueue.enqueue(packet->dts);
+    if( tsQueue.count() > 1000){
+        tsQueue.dequeue();
+    }
+
+    qDebug()<<"Timestamp::handlePacket()  tsQueue.count()="<<tsQueue.count();
 }
+
+void Timestamp::showFlots()
+{
+    QPolygonF points;
+
+    int i;
+    int count = tsQueue.count();
+
+    for(i = 0; i < count; i++){
+        points << QPointF(QPoint((int)i, (int)tsQueue.at(i)));
+        //qDebug()<<"Timestamp::showFlots()  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx, points.count()="<< points.count()<<"point("<<i<<","<<tsQueue.at(i)<<")";
+    }
+
+
+    //grid->attach(ui->qwtPlot);
+
+    //qDebug()<<"Timestamp::showFlots()  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx, points.count()="<< points.count();
+
+    curve->setTitle( "Some Points" );
+    curve->setPen( Qt::blue, 1 ),
+    curve->setRenderHint( QwtPlotItem::RenderAntialiased, true );
+    curve->setSamples( points );
+    //curve->attach(ui->qwtPlot);
+    ui->qwtPlot->replot();
+
+    showTimer->start(500);
+}
+
+
 

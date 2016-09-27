@@ -12,7 +12,9 @@
 #include <QTimer>
 #include <QFile>
 #include <QFileDialog>
+
 #include "zplayer.h"
+#include "timestamp.h"
 
 namespace Ui {
 class MainWindow;
@@ -29,7 +31,7 @@ public:
     ZPlayer *Player;
     QString FileName;
     QTimer *readTimer;
-
+    Timestamp *TimestampDialog;
 signals:
     void init_s();
     void play_s();

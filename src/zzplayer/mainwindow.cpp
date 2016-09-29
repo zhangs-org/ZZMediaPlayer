@@ -22,7 +22,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(Player->captureThread,SIGNAL(sendPacket(void *)), this,SLOT(getInfo(void *)));
     connect(Player->displayThread,SIGNAL(sendPicture(QImage)), this,SLOT(showPicture(QImage)));
 
-    connect(Player->captureThread,SIGNAL(sendVideoPacket(void *)), TimestampDialog,SLOT(handlePacket(void *)));
+    //connect(Player->captureThread,SIGNAL(sendVideoPacket(void *)), TimestampDialog,SLOT(handlePacket(void *)));
+    connect(Player->captureThread,SIGNAL(sendTimestamps(int, int,qint64, qint64)),
+            TimestampDialog,SLOT(handTimestamps(int, int,qint64, qint64)));
 
     qDebug()<<"MainWindow::MainWindow() over ";
 
@@ -70,10 +72,6 @@ void MainWindow::OpenFileClicked()
 
 void MainWindow::ToolTimestamp()
 {
-
-    //Timestamp *TimestampDialog = new Timestamp;
-    //connect(Player->captureThread,SIGNAL(sendPacket(void *)), TimestampDialog,SLOT(handlePacket(void *)));
-
     TimestampDialog->show();
 }
 

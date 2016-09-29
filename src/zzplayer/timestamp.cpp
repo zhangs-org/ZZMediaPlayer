@@ -52,12 +52,40 @@ void Timestamp::handlePacket(void *pkt)
     qDebug()<<"Timestamp::handlePacket(),handlePacket, index="<<packet->stream_index << " pts=" << packet->pts << " dts=" << packet->dts;
 
     tsQueue.enqueue(packet->dts);
-    if( tsQueue.count() > 1000){
+    if( tsQueue.count() > 100){
         tsQueue.dequeue();
     }
 
     qDebug()<<"Timestamp::handlePacket()  tsQueue.count()="<<tsQueue.count();
 }
+
+void Timestamp::handTimestamps(int index, int timebase, qint64 pts, qint64 dts)
+{
+
+    qDebug()<<"Timestamp::handTimestamps(), index="<<index << " pts=" << pts << " dts=" << dts;
+
+    //qDebug()<<"Timestamp::handTimestamps(), dts=" << dts;
+
+    tsQueue.enqueue(dts);
+    if( tsQueue.count() > 20){
+        tsQueue.dequeue();
+    }
+
+    //qDebug()<<"Timestamp::handTimestamps()  tsQueue.count()="<<tsQueue.count();
+}
+/*
+void Timestamp::handTimestamps(int index, int timebase, int64_t pts, int64_t dts)
+{
+
+    qDebug()<<"Timestamp::handTimestamps(), index="<<index << " pts=" << pts << " dts=" << dts;
+
+    tsQueue.enqueue(dts);
+    if( tsQueue.count() > 100){
+        tsQueue.dequeue();
+    }
+
+    qDebug()<<"Timestamp::handTimestamps()  tsQueue.count()="<<tsQueue.count();
+}*/
 
 void Timestamp::showFlots()
 {

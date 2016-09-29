@@ -65,6 +65,10 @@ void ZCapture::run()
     int ret;
     int i;
 
+    AVRational timebase;
+    int64_t pts;
+    int64_t dts;
+
     while(1){
         //qDebug()<<"capture run";
 
@@ -97,6 +101,7 @@ void ZCapture::run()
                     emit sendAudioCtx(pFormatCtx->streams[i]->codec);
                 }
             }
+
             // dump input information to stderr
             av_dump_format(pFormatCtx, 0, streamUrl, 0);
 
@@ -146,20 +151,28 @@ void ZCapture::run()
             // fixme: add if the packet should be sent
             if(packetShouldSend()){
                 pSendPkt = (AVPacket *)packetsQueue.dequeue();
+                // send timestamps
+                pts = av_rescale_q(pSendPkt->pts, pFormatCtx->streams[pSendPkt->stream_index]->codec->pkt_timebase, CapTimebaseQ);
+                dts = av_rescale_q(pSendPkt->dts, pFormatCtx->streams[pSendPkt->stream_index]->codec->pkt_timebase, CapTimebaseQ);
+
+                //emit sendTimestamps(pSendPkt->stream_index, CapTimebase, pts, dts);
+                emit sendTimestamps(pSendPkt->stream_index, CapTimebase, pts, dts);
+
+                // send packets that need be decoded
                 if(pFormatCtx->streams[pSendPkt->stream_index]->codec->codec_type == AVMEDIA_TYPE_VIDEO
                         && pSendPkt->stream_index == capVideoStreamIndex){
 
-                    emit sendVideoPacket(pSendPkt);
+                    //emit sendVideoPacket(pSendPkt);
                 }else if(pFormatCtx->streams[pSendPkt->stream_index]->codec->codec_type == AVMEDIA_TYPE_AUDIO
                          && pSendPkt->stream_index == capAudioStreamIndex){
 
-                    emit sendAudioPacket(pSendPkt);
+                    //emit sendAudioPacket(pSendPkt);
                 }else{
-                    // free the packet
+                    // free the packet(no need to decode)
                     av_packet_unref(pSendPkt);
                     free(pSendPkt);
                 }
-                qDebug()<<"ZCapture,packetsQueue.size()=" << packetsQueue.size();
+                //qDebug()<<"ZCapture,packetsQueue.size()=" << packetsQueue.size()<<" pts="<<pts<<" dts="<<dts;
             }else{
                 QThread::msleep(50);
             }
@@ -208,7 +221,7 @@ int ZCapture::packetShouldSend()
     // pick one packet queue
     if(!packetsQueue.isEmpty()){
         pPkt = (AVPacket *)packetsQueue.at(0);
-        qDebug()<<"ZCapture::packetShouldSend(), stream_index" << pPkt->stream_index <<" pPkt dts:" << pPkt->dts;
+        //qDebug()<<"ZCapture::packetShouldSend(), stream_index" << pPkt->stream_index <<" pPkt dts:" << pPkt->dts;
 
         if(streamStartTime[pPkt->stream_index] == 0){
             streamStartTime[pPkt->stream_index] = pPkt->dts;
@@ -228,10 +241,10 @@ int ZCapture::packetShouldSend()
         // trans to ms timebase
         dt = av_rescale_q(dt, pFormatCtx->streams[pPkt->stream_index]->codec->time_base, (AVRational){1, 1000});
 
-        qDebug()<<"ZCapture::packetShouldSend(), dt:" << dt << " now-startTime=" << (now - captureStartTime);
+        //qDebug()<<"ZCapture::packetShouldSend(), dt:" << dt << " now-startTime=" << (now - captureStartTime);
 
         if( dt <= (now - captureStartTime + 200) || dt <= 0 ){
-            qDebug()<<"ZCapture::packetShouldSend() true";
+            //qDebug()<<"ZCapture::packetShouldSend() true";
             return 1;
         }
 

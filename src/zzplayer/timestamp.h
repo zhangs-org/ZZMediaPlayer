@@ -47,6 +47,8 @@ private:
 
 public slots:
     void handlePacket(void *);
+    //void handTimestamps(int , int , int64_t , int64_t );
+    void handTimestamps(int , int , qint64 , qint64 );
     void showFlots();
 };
 

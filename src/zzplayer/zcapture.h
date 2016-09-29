@@ -44,6 +44,8 @@ signals:
     void sendAudioPacket(void * packet);
     void sendVideoCtx(void *);
     void sendAudioCtx(void *);
+    //void sendTimestamps(int , int , int64_t , int64_t );
+    void sendTimestamps(int, int , qint64, qint64);
 
 private:
     int startFlag;

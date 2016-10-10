@@ -13,16 +13,11 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QwtPlot" name="qwtPlot">
-   <property name="geometry">
-    <rect>
-     <x>60</x>
-     <y>60</y>
-     <width>400</width>
-     <height>200</height>
-    </rect>
-   </property>
-  </widget>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QwtPlot" name="qwtPlot"/>
+   </item>
+  </layout>
  </widget>
  <customwidgets>
   <customwidget>

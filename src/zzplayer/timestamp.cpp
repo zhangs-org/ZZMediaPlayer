@@ -15,26 +15,29 @@ Timestamp::Timestamp(QWidget *parent) :
 
     // for test
     grid = new QwtPlotGrid();
-    curve = new QwtPlotCurve();
-
     grid->attach(ui->qwtPlot);
 
+    int i;
 
-    curve->setTitle( "Some Points" );
-    curve->setPen( Qt::blue, 1 ),
-    curve->setRenderHint( QwtPlotItem::RenderAntialiased, true );
+    for(i = 0; i < 16; i++){
+        curve[i] = new QwtPlotCurve();
+        curve[i]->setTitle( "Some Points" );
 
-    //QwtSymbol *symbol = new QwtSymbol( QwtSymbol::Ellipse,
-    //    QBrush( Qt::yellow ), QPen( Qt::red, 2 ), QSize( 4,4 ) );
-    //curve->setSymbol( symbol );
+        if(i%2)
+            curve[i]->setPen( Qt::green, 1 ), curve[i]->setRenderHint( QwtPlotItem::RenderAntialiased, true );
+        else
+            curve[i]->setPen( Qt::red, 1 ), curve[i]->setRenderHint( QwtPlotItem::RenderAntialiased, true );
 
-    QPolygonF points;
-    points << QPointF( 0.0, 4.4 ) << QPointF( 1.0, 3.0 )
-        << QPointF( 2.0, 4.5 ) << QPointF( 3.0, 6.8 )
-        << QPointF( 4.0, 7.9 ) << QPointF( 5.0, 7.1 )<< QPointF( 6.0, 7.9 ) << QPointF( 7.0, 7.1 )<< QPointF( 8.0, 7.9 ) << QPointF( 9.0, 7.1 );
-    curve->setSamples( points );
+        //QwtSymbol *symbol = new QwtSymbol( QwtSymbol::Ellipse, QBrush( Qt::yellow ), QPen( Qt::red, 2 ), QSize( 4,4 ) );
+        //curve[i]->setSymbol( symbol );
 
-    curve->attach(ui->qwtPlot);
+        curve[i]->attach(ui->qwtPlot);
+
+    }
+
+
+
+
     ui->qwtPlot->show();
 
 }
@@ -51,12 +54,12 @@ void Timestamp::handlePacket(void *pkt)
     AVPacket *packet = (AVPacket *)pkt;
     qDebug()<<"Timestamp::handlePacket(),handlePacket, index="<<packet->stream_index << " pts=" << packet->pts << " dts=" << packet->dts;
 
-    tsQueue.enqueue(packet->dts);
-    if( tsQueue.count() > 100){
-        tsQueue.dequeue();
+    tsQueue[0].enqueue(packet->dts);
+    if( tsQueue[0].count() > 100){
+        tsQueue[0].dequeue();
     }
 
-    qDebug()<<"Timestamp::handlePacket()  tsQueue.count()="<<tsQueue.count();
+    qDebug()<<"Timestamp::handlePacket()  tsQueue[0].count()="<<tsQueue[0].count();
 }
 
 void Timestamp::handTimestamps(int index, int timebase, qint64 pts, qint64 dts)
@@ -66,48 +69,43 @@ void Timestamp::handTimestamps(int index, int timebase, qint64 pts, qint64 dts)
 
     //qDebug()<<"Timestamp::handTimestamps(), dts=" << dts;
 
-    tsQueue.enqueue(dts);
-    if( tsQueue.count() > 20){
-        tsQueue.dequeue();
+    if(index >= 0 && index <= 16){
+        tsQueue[index].enqueue(dts);
+        if( tsQueue[index].count() > 200){
+            tsQueue[index].dequeue();
+        }
     }
 
-    //qDebug()<<"Timestamp::handTimestamps()  tsQueue.count()="<<tsQueue.count();
+
+
+    //qDebug()<<"Timestamp::handTimestamps()  tsQueue[index].count()="<<tsQueue[index].count();
 }
-/*
-void Timestamp::handTimestamps(int index, int timebase, int64_t pts, int64_t dts)
-{
 
-    qDebug()<<"Timestamp::handTimestamps(), index="<<index << " pts=" << pts << " dts=" << dts;
-
-    tsQueue.enqueue(dts);
-    if( tsQueue.count() > 100){
-        tsQueue.dequeue();
-    }
-
-    qDebug()<<"Timestamp::handTimestamps()  tsQueue.count()="<<tsQueue.count();
-}*/
 
 void Timestamp::showFlots()
 {
-    QPolygonF points;
+    QPolygonF points[16];
 
     int i;
-    int count = tsQueue.count();
+    int index;
+    int count;
 
-    for(i = 0; i < count; i++){
-        points << QPointF(QPoint((int)i, (int)tsQueue.at(i)));
-        //qDebug()<<"Timestamp::showFlots()  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx, points.count()="<< points.count()<<"point("<<i<<","<<tsQueue.at(i)<<")";
+    for(index = 0; index < 16; index++){
+
+        count = tsQueue[index].count();
+
+        if(count > 0){
+            for(i = 0; i < count; i++){
+                points[index] << QPointF(QPoint((int)i, (int)tsQueue[index].at(i)));
+            }
+
+            curve[index]->setSamples( points[index] );
+        }
+
     }
 
 
-    //grid->attach(ui->qwtPlot);
 
-    //qDebug()<<"Timestamp::showFlots()  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx, points.count()="<< points.count();
-
-    curve->setTitle( "Some Points" );
-    curve->setPen( Qt::blue, 1 ),
-    curve->setRenderHint( QwtPlotItem::RenderAntialiased, true );
-    curve->setSamples( points );
     //curve->attach(ui->qwtPlot);
     ui->qwtPlot->replot();
 

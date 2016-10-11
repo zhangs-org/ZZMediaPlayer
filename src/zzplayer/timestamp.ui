@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>591</width>
-    <height>367</height>
+    <width>1017</width>
+    <height>647</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,7 +15,14 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
-    <widget class="QwtPlot" name="qwtPlot"/>
+    <widget class="QwtPlot" name="qwtPlot">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>629</height>
+      </size>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

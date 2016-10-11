@@ -12,8 +12,8 @@ ZCapture::ZCapture(QObject *parent) :
 
     memset(streamStartTime, 0, sizeof(streamStartTime));
 
-    CapTimebase = 1000000;
-    CapTimebaseQ = (AVRational){1, 1000000};
+    CapTimebase = 1000; // in ms
+    CapTimebaseQ = (AVRational){1, 1000};
 
     capVideoStreamIndex = -1;
     capAudioStreamIndex = -1;

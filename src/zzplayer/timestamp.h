@@ -23,6 +23,8 @@ extern "C"{
 #include <qwt_symbol.h>
 #include <qwt_legend.h>
 
+
+
 namespace Ui {
 class Timestamp;
 }
@@ -41,13 +43,12 @@ private:
     Ui::Timestamp *ui;
 
     QwtPlotGrid *grid;
-    QwtPlotCurve *curve;
+    QwtPlotCurve *curve[64];
 
-    QQueue<int> tsQueue;
+    QQueue<int> tsQueue[64];
 
 public slots:
     void handlePacket(void *);
-    //void handTimestamps(int , int , int64_t , int64_t );
     void handTimestamps(int , int , qint64 , qint64 );
     void showFlots();
 };

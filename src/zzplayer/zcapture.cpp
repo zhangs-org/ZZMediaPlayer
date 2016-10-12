@@ -162,11 +162,11 @@ void ZCapture::run()
                 if(pFormatCtx->streams[pSendPkt->stream_index]->codec->codec_type == AVMEDIA_TYPE_VIDEO
                         && pSendPkt->stream_index == capVideoStreamIndex){
 
-                    //emit sendVideoPacket(pSendPkt);
+                    emit sendVideoPacket(pSendPkt);
                 }else if(pFormatCtx->streams[pSendPkt->stream_index]->codec->codec_type == AVMEDIA_TYPE_AUDIO
                          && pSendPkt->stream_index == capAudioStreamIndex){
 
-                    //emit sendAudioPacket(pSendPkt);
+                    emit sendAudioPacket(pSendPkt);
                 }else{
                     // free the packet(no need to decode)
                     av_packet_unref(pSendPkt);

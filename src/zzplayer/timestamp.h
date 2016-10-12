@@ -45,7 +45,10 @@ private:
     QwtPlotGrid *grid;
     QwtPlotCurve *curve[64];
 
-    QQueue<int> tsQueue[64];
+    int bufferSize;
+
+    QQueue<int> tsQueue[64]; // timestamp queue
+    QQueue<int> dtQueue[64]; // timestamp dt queue
 
 public slots:
     void handlePacket(void *);

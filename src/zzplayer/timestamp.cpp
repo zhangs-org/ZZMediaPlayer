@@ -9,6 +9,9 @@ Timestamp::Timestamp(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    // set buffer default size
+    bufferSize = 400;
+
     showTimer = new QTimer(this);
     showTimer->start(500);
     connect(showTimer,SIGNAL(timeout()),this,SLOT(showFlots()));
@@ -28,7 +31,7 @@ Timestamp::Timestamp(QWidget *parent) :
         else
             curve[i]->setPen( Qt::red, 1 ), curve[i]->setRenderHint( QwtPlotItem::RenderAntialiased, true );
 
-        //QwtSymbol *symbol = new QwtSymbol( QwtSymbol::Ellipse, QBrush( Qt::yellow ), QPen( Qt::red, 2 ), QSize( 4,4 ) );
+        //QwtSymbol *symbol = new QwtSymbol( QwtSymbol::Ellipse, QBrush( Qt::yellow ), QPen( Qt::red, 2 ), QSize( 2,2 ) );
         //curve[i]->setSymbol( symbol );
 
         curve[i]->attach(ui->qwtPlot);
@@ -69,9 +72,20 @@ void Timestamp::handTimestamps(int index, int timebase, qint64 pts, qint64 dts)
 
     //qDebug()<<"Timestamp::handTimestamps(), dts=" << dts;
 
+    qint64 dt = 0;
+
     if(index >= 0 && index <= 16){
+
+        if( tsQueue[index].count() > 1){
+            dtQueue[index].enqueue(dts - tsQueue[index].last());
+        }
+
+        if(dtQueue[index].count() > bufferSize){
+            dtQueue[index].dequeue();
+        }
+
         tsQueue[index].enqueue(dts);
-        if( tsQueue[index].count() > 200){
+        if( tsQueue[index].count() > bufferSize){
             tsQueue[index].dequeue();
         }
     }
@@ -92,11 +106,11 @@ void Timestamp::showFlots()
 
     for(index = 0; index < 16; index++){
 
-        count = tsQueue[index].count();
+        count = dtQueue[index].count();
 
         if(count > 0){
             for(i = 0; i < count; i++){
-                points[index] << QPointF(QPoint((int)i, (int)tsQueue[index].at(i)));
+                points[index] << QPointF(QPoint((int)i, (int)dtQueue[index].at(i)));
             }
 
             curve[index]->setSamples( points[index] );

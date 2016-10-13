@@ -54,3 +54,13 @@ void ZPlayer::play()
     qDebug()<<"ZPlayer::play()";
 }
 
+void ZPlayer::stop()
+{
+    qDebug()<<"ZPlayer::stop()";
+}
+
+void ZPlayer::pause()
+{
+    qDebug()<<"ZPlayer::pause()";
+}
+

@@ -13,11 +13,12 @@ MainWindow::MainWindow(QWidget *parent) :
     readTimer = new QTimer(this);
     TimestampDialog = new Timestamp;
 
-    connect(this,SIGNAL(init_s()),Player,SLOT(init()));
-    connect(this,SIGNAL(play_s()),Player,SLOT(play()));
-
     connect(ui->actionOpen,SIGNAL(triggered()),this,SLOT(OpenFileClicked()));
     connect(ui->actionTimestamp,SIGNAL(triggered()),this,SLOT(ToolTimestamp()));
+    connect(ui->playButton, SIGNAL(clicked()),this,SLOT(PlayButtonClicked()));
+    connect(ui->stopButton, SIGNAL(clicked()),this,SLOT(StopButtonClicked()));
+    connect(ui->pauseButton, SIGNAL(clicked()),this,SLOT(PauseButtonClicked()));
+
 
     connect(Player->captureThread,SIGNAL(sendPacket(void *)), this,SLOT(getInfo(void *)));
     connect(Player->displayThread,SIGNAL(sendPicture(QImage)), this,SLOT(showPicture(QImage)));
@@ -42,18 +43,11 @@ void MainWindow::getInfo(void *pkt)
     qDebug()<<"getInfo, index="<<packet->stream_index << " pts=" << packet->pts << " dts=" << packet->dts;
 }
 
-void MainWindow::on_play_clicked()
-{
-    emit init_s();
-    readTimer->start(40);
-    qDebug()<<"readTimer->start ";
-}
+
 
 
 void MainWindow::showPicture(QImage img)
 {
-    qDebug()<<"MainWindow::showPicture()";
-
     QPixmap pix;
     pix = pix.fromImage(img);
     ui->videoShow->setPixmap(pix);
@@ -74,4 +68,27 @@ void MainWindow::ToolTimestamp()
 {
     TimestampDialog->show();
 }
+
+void MainWindow::PlayButtonClicked()
+{
+    //qDebug()<< "MainWindow::PlayButtonClicked()";
+    Player->play();
+}
+
+void MainWindow::StopButtonClicked()
+{
+    //qDebug()<< "MainWindow::StopButtonClicked()";
+    Player->stop();
+}
+
+void MainWindow::PauseButtonClicked()
+{
+    //qDebug()<< "MainWindow::PauseButtonClicked()";
+    Player->pause();
+}
+
+
+
+
+
 

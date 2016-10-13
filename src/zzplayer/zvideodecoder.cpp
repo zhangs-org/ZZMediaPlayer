@@ -36,7 +36,7 @@ void ZVideoDecoder::run()
         // get the packet from queue
         if(!packetQueue.isEmpty()){
             pPkt = (AVPacket *)packetQueue.dequeue();
-            qDebug()<< "ZVideoDecoder::run(), get Packet index=" << pPkt->stream_index << " pts=" << pPkt->pts;
+            //qDebug()<< "ZVideoDecoder::run(), get Packet index=" << pPkt->stream_index << " pts=" << pPkt->pts;
 
             // To decode when decoder has been inited
             if(pCodecCtx){
@@ -53,7 +53,7 @@ void ZVideoDecoder::run()
                 // decode the frame
                 got_frame = 0;
                 ret = avcodec_decode_video2(pCodecCtx, pFrame, &got_frame, pPkt);
-                qDebug()<< "ZVideoDecoder::run(), avcodec_decode_video2 return:"<<ret<<" got_frame="<<got_frame;
+                //qDebug()<< "ZVideoDecoder::run(), avcodec_decode_video2 return:"<<ret<<" got_frame="<<got_frame;
 
                 // send frame
                 if(got_frame){
@@ -141,7 +141,7 @@ int ZVideoDecoder::resetCodecContext()
 void ZVideoDecoder::handlePacket(void *pkt)
 {
     AVPacket *packet = (AVPacket *)pkt;
-    qDebug()<<"ZVideoDecoder::handlePacket(),handlePacket, index="<<packet->stream_index << " pts=" << packet->pts << " dts=" << packet->dts;
+    //qDebug()<<"ZVideoDecoder::handlePacket(),handlePacket, index="<<packet->stream_index << " pts=" << packet->pts << " dts=" << packet->dts;
 
     // push to queue
     packetQueue.enqueue(pkt);

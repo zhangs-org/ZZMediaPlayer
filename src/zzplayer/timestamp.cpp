@@ -55,22 +55,20 @@ Timestamp::~Timestamp()
 void Timestamp::handlePacket(void *pkt)
 {
     AVPacket *packet = (AVPacket *)pkt;
-    qDebug()<<"Timestamp::handlePacket(),handlePacket, index="<<packet->stream_index << " pts=" << packet->pts << " dts=" << packet->dts;
+    //qDebug()<<"Timestamp::handlePacket(),handlePacket, index="<<packet->stream_index << " pts=" << packet->pts << " dts=" << packet->dts;
 
     tsQueue[0].enqueue(packet->dts);
     if( tsQueue[0].count() > 100){
         tsQueue[0].dequeue();
     }
 
-    qDebug()<<"Timestamp::handlePacket()  tsQueue[0].count()="<<tsQueue[0].count();
+    //qDebug()<<"Timestamp::handlePacket()  tsQueue[0].count()="<<tsQueue[0].count();
 }
 
 void Timestamp::handTimestamps(int index, int timebase, qint64 pts, qint64 dts)
 {
 
-    qDebug()<<"Timestamp::handTimestamps(), index="<<index << " pts=" << pts << " dts=" << dts;
-
-    //qDebug()<<"Timestamp::handTimestamps(), dts=" << dts;
+    //qDebug()<<"Timestamp::handTimestamps(), index="<<index << " pts=" << pts << " dts=" << dts;
 
     qint64 dt = 0;
 
@@ -91,8 +89,6 @@ void Timestamp::handTimestamps(int index, int timebase, qint64 pts, qint64 dts)
     }
 
 
-
-    //qDebug()<<"Timestamp::handTimestamps()  tsQueue[index].count()="<<tsQueue[index].count();
 }
 
 
@@ -118,9 +114,6 @@ void Timestamp::showFlots()
 
     }
 
-
-
-    //curve->attach(ui->qwtPlot);
     ui->qwtPlot->replot();
 
     showTimer->start(500);

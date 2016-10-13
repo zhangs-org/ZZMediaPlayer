@@ -32,17 +32,17 @@ public:
     QString FileName;
     QTimer *readTimer;
     Timestamp *TimestampDialog;
-signals:
-    void init_s();
-    void play_s();
+
 public slots:
     void getInfo(void *pkt);
     void showPicture(QImage);
 
 private slots:
-    void on_play_clicked();
     void OpenFileClicked();
     void ToolTimestamp();
+    void PlayButtonClicked();
+    void StopButtonClicked();
+    void PauseButtonClicked();
 
 private:
     Ui::MainWindow *ui;

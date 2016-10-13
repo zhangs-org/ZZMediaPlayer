@@ -39,8 +39,8 @@ public:
     /* funtions */
     int  setUrl(char * url);
     // start
-    // restart
     // stop
+    // restart = stop + start
     // pause
 
 
@@ -50,6 +50,8 @@ signals:
 public slots:
     void init();
     void play();
+    void stop();
+    void pause();
     void getPacket(void *pkt);
 
 

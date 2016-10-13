@@ -29,10 +29,12 @@ public:
 
     /* funtions */
     int  setUrl(char * url);
-    // start
-    // restart
+    // play
+    int play();
     // stop
+    int stop();
     // pause
+    int pause();
     // seek
 
 protected:
@@ -48,7 +50,7 @@ signals:
     void sendTimestamps(int, int , qint64, qint64);
 
 private:
-    int startFlag;
+    int status; // 0:init, 1:play, 2:pause, -1:stop
     char streamUrl[1024];  // the stream url
     AVFormatContext *pFormatCtx;
     QQueue<void *> packetsQueue;

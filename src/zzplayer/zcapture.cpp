@@ -5,7 +5,7 @@ ZCapture::ZCapture(QObject *parent) :
 {
     qDebug()<<"ZCapture::ZCapture()";
 
-    startFlag = 0;
+    status = 0;
     memset(streamUrl, 0, sizeof(streamUrl));
     pFormatCtx = NULL;
     bufferSize = 500;
@@ -49,7 +49,7 @@ void ZCapture::clean()
     }
 
     pFormatCtx = NULL;
-    startFlag = 0;
+    status = 0;
     capVideoStreamIndex = -1;
     capAudioStreamIndex = -1;
 }
@@ -73,14 +73,15 @@ void ZCapture::run()
         //qDebug()<<"capture run";
 
         // start new stream
-        if(startFlag && strlen(streamUrl) > 0){
-            clean();
+        if(pFormatCtx==NULL && strlen(streamUrl) > 0 && status == 1){
+
             qDebug()<<"ZCapture::run(), open stream:" << streamUrl;
 
             // open input file, and allocate format context
             if (avformat_open_input(&pFormatCtx, streamUrl, NULL, NULL) < 0) {
                 qWarning("Could not open source file %s\n", streamUrl);
                 clean();
+                QThread::msleep(500);
                 continue ;
             }
 
@@ -109,7 +110,7 @@ void ZCapture::run()
 
 
 
-        if(pFormatCtx){
+        if(pFormatCtx && status==1){
 
             if(pPkt == NULL){
                 pPkt = (AVPacket *)malloc(sizeof(AVPacket));
@@ -142,7 +143,7 @@ void ZCapture::run()
                 continue ;
             }
 
-            qDebug()<<"ZCapture::run(),index="<<pPkt->stream_index<<" pts="<<pPkt->pts<< " dts=" << pPkt->dts;
+            //qDebug()<<"ZCapture::run(),index="<<pPkt->stream_index<<" pts="<<pPkt->pts<< " dts=" << pPkt->dts;
 
             // push the packet to queue
             packetsQueue.enqueue((void *)pPkt);
@@ -177,21 +178,39 @@ void ZCapture::run()
                 QThread::msleep(50);
             }
         }else{
-            QThread::msleep(50);
+            QThread::msleep(500);
         }
 
         if(packetsQueue.size() > bufferSize){
             QThread::msleep(50);
         }
     }
+
+    // clean
+    clean();
 }
 
 int ZCapture::setUrl(char * url)
 {
     strcpy(streamUrl, url);
-    startFlag = 1;
+    status = 1;
     qDebug()<<"ZCapture::setUrl, streamUrl" << streamUrl;
     return 0;
+}
+
+int ZCapture::play()
+{
+    status = 1;
+}
+
+int ZCapture::pause()
+{
+    status = 2;
+}
+
+int ZCapture::stop()
+{
+    status = -1;
 }
 
 void ZCapture::getCurrentMS(int64_t *retval)

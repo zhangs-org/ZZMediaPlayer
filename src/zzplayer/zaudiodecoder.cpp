@@ -36,7 +36,7 @@ void ZAudioDecoder::run()
         // get the packet from queue
         if(!packetQueue.isEmpty()){
             pPkt = (AVPacket *)packetQueue.dequeue();
-            qDebug()<< "ZAudioDecoder::run(), get Packet index=" << pPkt->stream_index << " pts=" << pPkt->pts;
+            //qDebug()<< "ZAudioDecoder::run(), get Packet index=" << pPkt->stream_index << " pts=" << pPkt->pts;
 
             // To decode when decoder has been inited
             if(pCodecCtx){
@@ -53,7 +53,7 @@ void ZAudioDecoder::run()
                 // decode the frame
                 got_frame = 0;
                 ret = avcodec_decode_audio4(pCodecCtx, pFrame, &got_frame, pPkt);
-                qDebug()<< "ZAudioDecoder::run(), avcodec_decode_video2 return:"<<ret<<" got_frame="<<got_frame;
+                //qDebug()<< "ZAudioDecoder::run(), avcodec_decode_video2 return:"<<ret<<" got_frame="<<got_frame;
 
                 /* Some audio decoders decode only part of the packet, and have to be
                  * called again with the remainder of the packet data.
@@ -148,7 +148,7 @@ int ZAudioDecoder::resetCodecContext()
 void ZAudioDecoder::handlePacket(void *pkt)
 {
     AVPacket *packet = (AVPacket *)pkt;
-    qDebug()<<"ZAudioDecoder::handlePacket(), handlePacket, index="<<packet->stream_index << " pts=" << packet->pts << " dts=" << packet->dts;
+    //qDebug()<<"ZAudioDecoder::handlePacket(), handlePacket, index="<<packet->stream_index << " pts=" << packet->pts << " dts=" << packet->dts;
 
     // push to queue
     packetQueue.enqueue(pkt);

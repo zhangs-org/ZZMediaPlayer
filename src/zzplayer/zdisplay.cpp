@@ -23,8 +23,8 @@ void ZDisplay::run()
 
         if(!videoFrameQueue.isEmpty()){
             pFrame = (AVFrame *)videoFrameQueue.dequeue();
-            qDebug()<<"ZDisplay::run(), Get frame width:"
-                   <<pFrame->width<<" height:"<<pFrame->height<<" format:"<<pFrame->format;
+            //qDebug()<<"ZDisplay::run(), Get frame width:"
+            //       <<pFrame->width<<" height:"<<pFrame->height<<" format:"<<pFrame->format;
 
 
             // fixme: should add code for check the frame change
@@ -86,8 +86,8 @@ void ZDisplay::sendAudio(AVFrame * pFrame)
 
     // fixme: the sample should be resample
 
-    qDebug()<<"sendAudio, unpadded_linesize="<<unpadded_linesize<<" format="<<pFrame->format
-           <<" linesize[0]=" << pFrame->linesize[0] << " linesize[1]=" << pFrame->linesize[1];
+    //qDebug()<<"sendAudio, unpadded_linesize="<<unpadded_linesize<<" format="<<pFrame->format
+    //       <<" linesize[0]=" << pFrame->linesize[0] << " linesize[1]=" << pFrame->linesize[1];
 
     tempBuffer.append((const char *)pFrame->extended_data[0],unpadded_linesize);
 
@@ -96,7 +96,7 @@ void ZDisplay::sendAudio(AVFrame * pFrame)
     {
         int chunks = audioOutput->bytesFree()/audioOutput->periodSize();
 
-        qDebug()<<"sendAudio, chunks="<<chunks << " bytesFree="<<audioOutput->bytesFree() << " periodSize="<<audioOutput->periodSize();
+        //qDebug()<<"sendAudio, chunks="<<chunks << " bytesFree="<<audioOutput->bytesFree() << " periodSize="<<audioOutput->periodSize();
         streamOut->write(tempBuffer);
         tempBuffer.clear();
 
@@ -125,7 +125,7 @@ void ZDisplay::sendAudio(AVFrame * pFrame)
 
 void ZDisplay::handleVideoFrame(void * pFrame)
 {
-    qDebug()<<"ZDisplay::handleVideoFrame";
+    //qDebug()<<"ZDisplay::handleVideoFrame";
 
     // push to queue
     if(pFrame)
@@ -137,7 +137,7 @@ void ZDisplay::handleVideoFrame(void * pFrame)
 
 void ZDisplay::handleAudioFrame(void * pFrame)
 {
-    qDebug()<<"ZDisplay::handleAudioFrame";
+    //qDebug()<<"ZDisplay::handleAudioFrame";
 
     // push to queue
     if(pFrame)

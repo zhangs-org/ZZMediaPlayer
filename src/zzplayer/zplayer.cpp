@@ -52,15 +52,18 @@ void ZPlayer::init()
 void ZPlayer::play()
 {
     qDebug()<<"ZPlayer::play()";
+    captureThread->play();
 }
 
 void ZPlayer::stop()
 {
     qDebug()<<"ZPlayer::stop()";
+    captureThread->stop();
 }
 
 void ZPlayer::pause()
 {
     qDebug()<<"ZPlayer::pause()";
+    captureThread->pause();
 }
 

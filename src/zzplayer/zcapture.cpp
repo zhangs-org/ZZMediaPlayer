@@ -71,6 +71,7 @@ void ZCapture::run()
 
     while(1){
         //qDebug()<<"capture run";
+        //qDebug()<<"runtime status="<<status;
 
         // start new stream
         if(pFormatCtx==NULL && strlen(streamUrl) > 0 && status == 1){
